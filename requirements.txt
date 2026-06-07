@@ -1,0 +1,20 @@
+# Core scientific stack
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+
+# NetCDF / Zarr / Cloud access
+xarray>=2023.1
+zarr>=2.14
+gcsfs>=2023.1
+dask>=2023.1
+netCDF4>=1.6
+
+# CDS fallback route
+cdsapi>=0.7
+
+# Excel I/O
+openpyxl>=3.1
+
+# Progress display
+tqdm>=4.65
