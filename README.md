@@ -1,6 +1,6 @@
 # haraz-climate-analysis
 
-**Python scripts for CMIP6 climate data processing, quality control, and gap-filling — Haraz Watershed, Northern Iran**
+**Reproducible Python pipeline for CMIP6 hydroclimatic projection over the Haraz Watershed, Northern Iran**
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -9,57 +9,70 @@
 
 ## Overview
 
-This repository contains the reproducible data processing pipeline developed for the study:
+This repository contains the full, reproducible analysis pipeline for the study:
 
 > **Rahab-Rajaei, S., Motiee, H. (2025).** *Hydroclimatic Projections Under CMIP6 SSP Scenarios in the Haraz Watershed, Northern Iran: A Hybrid BiLSTM–BMA Framework with Compound Extreme Event Analysis.* [Target Journal: Q1 ISI]
 
-The pipeline covers:
+The pipeline runs end-to-end, from raw station records to projected hydroclimatic indices:
 
-1. **Quality Control & Gap Analysis** — systematic identification of structural and scattered missing values in daily climate records
-2. **Multi-Source Gap-Filling** — bias-corrected merging of IRIMO portal and provincial database records; MLR-based infilling from adjacent stations
-3. **CMIP6 Data Download & Extraction** *(in progress)* — NetCDF processing for 6 GCMs from ESGF / Google Cloud / CDS
-4. **LARS-WG 8 Downscaling Support** — preparation of site files and scenario inputs
-5. **BiLSTM Streamflow Projection** *(in progress)*
-6. **BMA Uncertainty Quantification** *(in progress)*
-
----
-
-## Study Area
-
-| Station | Lat (°N) | Lon (°E) | Elev. (m) | Period |
-|---------|----------|----------|-----------|--------|
-| Gharakhil | 36.487 | 52.108 | 14.7 | 2000–2020 |
-| Amol | 36.470 | 52.350 | 23.7 | 2000–2020 |
-| Sari (Dasht-e-Naz Airport) | 36.653 | 53.193 | 16.7 | 2000–2020 |
-| Karesang (Hydrometric) | 36.273 | 52.381 | 375 | 1949–2016 |
+1. **Quality control & gap analysis** — structural and scattered missing-value detection in daily climate records.
+2. **Multi-source gap-filling** — bias-corrected merging of IRIMO portal and provincial records; MLR infilling from neighbouring stations, yielding a complete daily baseline (2000–2020).
+3. **CMIP6 retrieval & evaluation** — six GCMs (CanESM5, GFDL-ESM4, IPSL-CM6A-LR, MPI-ESM1-2-HR, MRI-ESM2-0, UKESM1-0-LL) scored against the observed baseline (RMSE, MAE, PBIAS, NSE, KGE, r; Taylor diagrams).
+4. **Statistical downscaling** — LARS-WG 8 stochastic generation for the four library GCMs; **Detrended Quantile Mapping (DQM)** applied directly to the two models absent from the LARS-WG 8 library.
+5. **Bayesian Model Averaging (BMA)** — ensemble weights estimated by **Expectation–Maximization** (Raftery et al., 2005), with predictive uncertainty bounds.
+6. **BiLSTM streamflow projection** — autoregressive bidirectional LSTM trained on the Karesang record.
+7. **Drought & extreme indices** — SPI/SPEI (Hargreaves PET), ETCCDI precipitation/temperature extremes, and compound hot-dry events.
+8. **Publication figures** — all manuscript figures at 600 dpi.
 
 ---
 
-## Repository Structure
+## Study area
+
+| Station | Lat (°N) | Lon (°E) | Elev. (m) | Period | Role |
+|---------|----------|----------|-----------|--------|------|
+| Gharakhil | 36.487 | 52.108 | 14.7 | 2000–2020 | In/near basin (western) |
+| Amol | 36.470 | 52.350 | 23.7 | 2000–2020 | Haraz mainstem |
+| Sari (Dasht-e-Naz Airport) | 36.653 | 53.193 | 16.7 | 2000–2020 | Eastern-margin regional reference (~75 km E of Amol) |
+| Karesang (hydrometric) | 36.273 | 52.381 | 375 | 1949–2016 | Streamflow gauge |
+
+---
+
+## Repository structure
 
 ```
 haraz-climate-analysis/
-│
 ├── data_processing/
-│   ├── 01_gap_analysis.py          # Systematic gap detection across all stations
-│   ├── 02_gap_filling.py           # Multi-source gap-filling (bias correction + MLR)
-│   ├── 03_build_final_dataset.py   # Assemble HBCD-2020 final dataset
-│   ├── 04_download_cmip6.py        # CMIP6 retrieval via ESGF (reference route)
-│   ├── 05_download_nexgddp.py      # NEX-GDDP-CMIP6 (AWS S3), single experiment
-│   ├── 06_download_all_cmip6.py    # NEX-GDDP-CMIP6 (AWS S3), parallel full run
-│   ├── 07_download_cmip6_gcs.py    # CMIP6 via Google Cloud Pangeo Zarr (recommended)
-│   └── 08_download_cmip6_cds.py    # CMIP6 via Copernicus CDS (fallback)
-│
-├── utils/
-│   └── stats.py                    # OLS regression and performance metrics (numpy-only)
-│
-├── docs/
-│   └── DATA_RETRIEVAL.md           # CMIP6 data-retrieval methodology (all routes)
-│
+│   ├── 01_gap_analysis.py            # Gap detection across stations
+│   ├── 02_gap_filling.py             # Multi-source gap-filling (bias correction + MLR)
+│   ├── 03_build_final_dataset.py     # Assemble the gap-filled baseline (2000–2020)
+│   ├── 04_download_cmip6.py          # CMIP6 via ESGF (reference route)
+│   ├── 05_download_nexgddp.py        # NEX-GDDP-CMIP6 (AWS S3)
+│   ├── 06_download_all_cmip6.py      # NEX-GDDP-CMIP6 parallel full run
+│   ├── 07_download_cmip6_gcs.py      # CMIP6 via Google Cloud Pangeo Zarr (recommended)
+│   ├── 08_download_cmip6_cds.py      # CMIP6 via Copernicus CDS (fallback)
+│   ├── 09_cmip6_evaluation.py        # GCM skill scores + Taylor diagrams
+│   ├── 10_prepare_larswg_site.py     # LARS-WG 8 site (.st/.dat) inputs
+│   ├── 10b_run_larswg_batch.ps1      # LARS-WG 8 batch run (Windows)
+│   ├── 11_bias_correction_dqm.py     # DQM bias correction (IPSL, MPI)
+│   ├── 11b_larswg_to_bc.py           # LARS-WG output -> projection series (4 GCMs)
+│   ├── 12_prepare_streamflow_data.py # Karesang discharge + basin-average climate
+│   ├── 13_bilstm_streamflow.py       # Autoregressive BiLSTM (PyTorch)
+│   ├── 13b_bilstm_sklearn_fallback.py# MLP fallback (no deep-learning deps)
+│   ├── 14_bma_ensemble.py            # EM-based Bayesian Model Averaging
+│   ├── 15_drought_indices.py         # SPI / SPEI (Hargreaves PET)
+│   ├── 16_extreme_indices.py         # ETCCDI extreme indices
+│   ├── 17_compound_extremes.py       # Compound hot-dry events
+│   ├── 18_publication_figures.py     # 600-dpi manuscript figures
+│   └── 27_fig1_study_area.py         # Study-area map (Figure 1)
+├── utils/stats.py                    # OLS regression and metrics (numpy-only)
+├── docs/DATA_RETRIEVAL.md            # CMIP6 retrieval methodology
 ├── requirements.txt
 ├── LICENSE
 └── README.md
 ```
+
+The numeric prefixes define the intended execution order (01 -> 18). Scripts read
+inputs from, and write outputs to, paths relative to the repository root.
 
 ---
 
@@ -71,91 +84,47 @@ cd haraz-climate-analysis
 pip install -r requirements.txt
 ```
 
----
-
-## Usage
-
-### Step 1 — Gap Analysis
-```bash
-python data_processing/01_gap_analysis.py \
-    --input data/IRIMO_Daily_ClimateData_2000_2020.xlsx \
-    --output reports/gap_analysis_report.csv
-```
-
-### Step 2 — Gap Filling
-```bash
-python data_processing/02_gap_filling.py \
-    --irimo   data/IRIMO_Daily_ClimateData_2000_2020.xlsx \
-    --mazdb   data/Mazandaran.xlsx \
-    --output  data/ClimateData_GapFilled_2000_2020.xlsx
-```
-
-### Step 3 — Build Final Dataset
-```bash
-python data_processing/03_build_final_dataset.py \
-    --filled  data/ClimateData_GapFilled_2000_2020.xlsx \
-    --output  data/HBCD_2020_Final.xlsx
-```
-
-### Step 4 — CMIP6 Retrieval (recommended: Google Cloud)
-```bash
-# Primary route — streams from the Pangeo Google Cloud Zarr archive (no login)
-# Downloads pr, tasmax, tasmin, tas for all 6 GCMs × 3 experiments
-python data_processing/07_download_cmip6_gcs.py --output data/cmip6_gcs/
-
-# Fallback route — Copernicus CDS (requires a free CDS account + token)
-python data_processing/08_download_cmip6_cds.py --output data/cmip6_cds/
-```
-
-See [docs/DATA_RETRIEVAL.md](docs/DATA_RETRIEVAL.md) for the full methodology and a
-comparison of all four routes (Google Cloud, NEX-GDDP, CDS, ESGF).
+The BiLSTM step (`13_bilstm_streamflow.py`) additionally requires PyTorch
+(`pip install torch`); a dependency-free MLP fallback (`13b`) is provided.
 
 ---
 
-## Methods Summary
+## Data
 
-### Gap-Filling Procedure
+Large/raw data are **not** tracked in this repository (see `.gitignore`). Obtain them from:
+- **IRIMO** daily station records — [http://www.irimo.ir](http://www.irimo.ir)
+- **Iran Regional Water Management Organization (IRWMO)** — streamflow.
+- **CMIP6** — freely available via ESGF / the Pangeo Google Cloud archive (scripts 04–08).
 
-| Station | Structural Gap | Method |
+The processed gap-filled baseline and bias-corrected projections are available on request and will be archived (with a DOI) on Zenodo upon publication.
+
+---
+
+## Gap-filling summary
+
+| Station | Structural gap | Method |
 |---------|---------------|--------|
-| Gharakhil | None | Linear interpolation (≤3 days) |
-| Sari | 2000–2005 (2,192 days) | IRIMO Provincial DB + bias correction (ΔTmax=−0.184°C, ΔTmin=−0.321°C) |
-| Amol | 2000 + 2018–2020 (1,463 days) | MLR from Gharakhil + Sari (R²=0.986 for Tmax) |
+| Gharakhil | none | Linear interpolation (≤3 days) |
+| Sari | 2000–2005 | Provincial DB + mean-bias correction (ΔTmax = −0.184 °C, ΔTmin = −0.321 °C) |
+| Amol | 2000, 2018–2020 | MLR from Gharakhil (+Sari); R² = 0.98 (Tmax/Tmin), 0.38–0.39 (precip) |
 
-**Validation statistics (overlap period 2006–2017, n=8,764 days):**
-- Tmax: r = 0.996, RMSE = 0.802°C
-- Tmin: r = 0.996, RMSE = 0.796°C
-- Precipitation: r = 0.598, RMSE = 5.752 mm/day
-
----
-
-## Data Availability
-
-Raw observational data are available from:
-- **IRIMO portal**: [http://www.irimo.ir](http://www.irimo.ir)
-- **Iran Regional Water Management Organization (IRWMO)**: [https://www.wrm.ir](https://www.wrm.ir)
-
-The processed HBCD-2020 dataset (zero missing values, 2000–2020) is available upon reasonable request.
+Source–portal cross-validation (2006–2017): r = 0.996 for Tmax and Tmin; r = 0.60 for daily precipitation.
 
 ---
 
 ## Citation
 
-If you use this code, please cite:
-
 ```bibtex
-@misc{rahab_rajaei_2024,
-  author       = {Rahab-Rajaei, Sajad},
-  title        = {haraz-climate-analysis: Python scripts for CMIP6 climate data 
-                  processing and gap-filling, Haraz watershed, northern Iran},
-  year         = {2024},
-  publisher    = {GitHub},
-  url          = {https://github.com/sajadrahab/haraz-climate-analysis}
+@misc{rahabrajaei_haraz_2025,
+  author    = {Rahab-Rajaei, Sajad and Motiee, Homayoun},
+  title     = {haraz-climate-analysis: a reproducible CMIP6 hydroclimatic
+               projection pipeline for the Haraz watershed, northern Iran},
+  year      = {2025},
+  publisher = {GitHub},
+  url       = {https://github.com/SajadRahab96/haraz-climate-analysis}
 }
 ```
 
----
-
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE).
