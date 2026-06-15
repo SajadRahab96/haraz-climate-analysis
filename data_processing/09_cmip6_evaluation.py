@@ -2,7 +2,7 @@
 """
 09_cmip6_evaluation.py
 ======================
-CMIP6 GCM Historical Evaluation — Haraz Watershed Study (Q1 Edition v2)
+CMIP6 GCM Historical Evaluation — Haraz Watershed Study
 
 Evaluates six CMIP6 models against the HBCD-2020 observational baseline
 (2000-2014) at three synoptic stations (Amol, Gharakhil, Sari).
@@ -518,7 +518,7 @@ def save_results(metrics_df: pd.DataFrame, skill_df: pd.DataFrame, output_dir: P
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    print("CMIP6 GCM Evaluation — Haraz Watershed (Q1 Edition v2)")
+    print("CMIP6 GCM Evaluation — Haraz Watershed")
     print("Evaluation basis: monthly time series  (n \u2248 180 per station/variable)")
     print("=" * 60)
 
