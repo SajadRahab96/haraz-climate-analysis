@@ -4,23 +4,23 @@
 Computes ETCCDI precipitation extreme indices from bias-corrected daily projections.
 
 Indices computed (ETCCDI standard definitions):
-  R95p   — Annual total precipitation when daily P > 95th percentile (mm/year)
-  R99p   — Annual total precipitation when daily P > 99th percentile (mm/year)
-  Rx1day — Maximum 1-day precipitation (mm)
-  Rx5day — Maximum consecutive 5-day precipitation (mm)
-  CDD    — Maximum consecutive dry days (P < 1 mm)
-  CWD    — Maximum consecutive wet days (P >= 1 mm)
-  SDII   — Simple daily intensity index (mm/wet day)
+  R95p   - Annual total precipitation when daily P > 95th percentile (mm/year)
+  R99p   - Annual total precipitation when daily P > 99th percentile (mm/year)
+  Rx1day - Maximum 1-day precipitation (mm)
+  Rx5day - Maximum consecutive 5-day precipitation (mm)
+  CDD    - Maximum consecutive dry days (P < 1 mm)
+  CWD    - Maximum consecutive wet days (P >= 1 mm)
+  SDII   - Simple daily intensity index (mm/wet day)
 
 Also computes temperature extremes:
-  TXx   — Annual maximum of Tmax (°C)
-  TNn   — Annual minimum of Tmin (°C)
-  TX90p — % days with Tmax > 90th percentile (warm days)
-  TN10p — % days with Tmin < 10th percentile (cool nights)
-  WSDI  — Warm spell duration index (days)
+  TXx   - Annual maximum of Tmax (°C)
+  TNn   - Annual minimum of Tmin (°C)
+  TX90p - % days with Tmax > 90th percentile (warm days)
+  TN10p - % days with Tmin < 10th percentile (cool nights)
+  WSDI  - Warm spell duration index (days)
 
-Baseline for percentile computation: 2000–2014 (calibration period)
-Analysis periods: 2000–2020 (obs), 2021–2060 (near), 2061–2100 (long)
+Baseline for percentile computation: 2000-2014 (calibration period)
+Analysis periods: 2000-2020 (obs), 2021-2060 (near), 2061-2100 (long)
 
 Outputs:
   outputs/extremes/annual_extremes_{station}_{model}_{scenario}.csv
@@ -38,7 +38,7 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR  = Path(__file__).resolve().parent.parent
 BC_DIR    = BASE_DIR / "outputs" / "bias_corrected"
 OBS_XLSX  = BASE_DIR / "ClimateData_GapFilled_2000_2020.xlsx"
@@ -63,7 +63,7 @@ STATION_EXCEL_MAP = {
 }
 
 
-# ── Index computation functions ───────────────────────────────────────────────
+# -- Index computation functions -----------------------------------------------
 def rolling_sum(arr: np.ndarray, window: int) -> np.ndarray:
     """Efficient rolling sum."""
     result = np.full(len(arr), np.nan)
@@ -186,7 +186,7 @@ def compute_annual_extremes(daily_df: pd.DataFrame,
     return pd.DataFrame(records)
 
 
-# ── Load observed daily ────────────────────────────────────────────────────────
+# -- Load observed daily --------------------------------------------------------
 def load_obs_daily(station_excel: str) -> pd.DataFrame:
     df = pd.read_excel(OBS_XLSX, sheet_name="All_Stations", parse_dates=["date"])
     df = df[df["station_name"] == station_excel].copy()
@@ -195,7 +195,7 @@ def load_obs_daily(station_excel: str) -> pd.DataFrame:
     ].sort_values("date").reset_index(drop=True)
 
 
-# ── BMA-weighted index ────────────────────────────────────────────────────────
+# -- BMA-weighted index --------------------------------------------------------
 def bma_extreme_summary(station: str, scenario: str, weights_dict: dict,
                         obs_pr_95: float, obs_pr_99: float,
                         obs_tmax_90: float, obs_tmin_10: float) -> pd.DataFrame:
@@ -242,7 +242,7 @@ def bma_extreme_summary(station: str, scenario: str, weights_dict: dict,
     return pd.DataFrame(bma_records)
 
 
-# ── Period comparison plot ────────────────────────────────────────────────────
+# -- Period comparison plot ----------------------------------------------------
 def plot_period_comparison(bma_df: pd.DataFrame, indices: list,
                             station: str, scenario: str):
     periods = {
@@ -276,16 +276,16 @@ def plot_period_comparison(bma_df: pd.DataFrame, indices: list,
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() * 1.02,
                     f"{val:.1f}", ha="center", va="bottom", fontsize=8)
 
-    fig.suptitle(f"Extreme Indices — {station} ({scenario.upper()})", fontsize=12)
+    fig.suptitle(f"Extreme Indices - {station} ({scenario.upper()})", fontsize=12)
     plt.tight_layout()
     fig.savefig(FIG_DIR / f"extremes_periods_{station}_{scenario}.png", dpi=150)
     plt.close(fig)
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# -- Main ----------------------------------------------------------------------
 def main():
     print("=" * 65)
-    print("Phase IV — ETCCDI Extreme Climate Indices")
+    print("Phase IV - ETCCDI Extreme Climate Indices")
     print("=" * 65)
 
     # Load BMA weights
@@ -305,7 +305,7 @@ def main():
         print(f"\n{'-'*50}")
         print(f"Station: {station}")
 
-        # ── Observed extremes (baseline) ──────────────────────────────────────
+        # -- Observed extremes (baseline) --------------------------------------
         obs = load_obs_daily(STATION_EXCEL_MAP[station])
         obs_calib = obs[(obs["date"] >= CALIB_START) & (obs["date"] <= CALIB_END)]
         base = obs_calib if len(obs_calib) >= 365 else obs
@@ -369,12 +369,12 @@ def main():
                 station, scenario
             )
 
-    # ── Save observed extremes ────────────────────────────────────────────────
+    # -- Save observed extremes ------------------------------------------------
     if all_obs_extremes:
         obs_df = pd.concat(all_obs_extremes, ignore_index=True)
         obs_df.to_csv(OUT_DIR / "observed_extremes_annual.csv", index=False)
 
-    # ── Save change summary ───────────────────────────────────────────────────
+    # -- Save change summary ---------------------------------------------------
     if all_summaries:
         summary_df = pd.DataFrame(all_summaries)
         summary_df.to_csv(OUT_DIR / "extremes_period_changes.csv", index=False)

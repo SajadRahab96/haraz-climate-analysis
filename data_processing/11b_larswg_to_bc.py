@@ -18,7 +18,7 @@ and thereby remove part of the change signal (in particular the near-term
 2021-2040 warming). Accordingly, NO additional bias correction is applied here:
 the LARS-WG output is mapped to Gregorian dates, quality-controlled, and written
 out directly. (Direct DQM is applied only to IPSL-CM6A-LR and MPI-ESM1-2-HR,
-which are absent from the LARS-WG library — see 11_bias_correction_dqm.py.)
+which are absent from the LARS-WG library - see 11_bias_correction_dqm.py.)
 
 LARS-WG output format (whitespace-separated, no header):
   col0: simulated-year number (1..N)
@@ -54,7 +54,7 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR   = Path(__file__).resolve().parent.parent
 LARS_OUT   = BASE_DIR / "LARS weather generator 8" / "Output"
 OBS_EXCEL  = BASE_DIR / "ClimateData_GapFilled_2000_2020.xlsx"
@@ -78,7 +78,7 @@ STATION_EXCEL_MAP = {
 }
 
 
-# ── Parse LARS-WG .dat file ───────────────────────────────────────────────────
+# -- Parse LARS-WG .dat file ---------------------------------------------------
 def parse_larswg_dat(filepath: Path, period_str: str) -> pd.DataFrame:
     """
     Parse a LARS-WG 8 output .dat file and return a daily DataFrame with
@@ -119,7 +119,7 @@ def parse_larswg_dat(filepath: Path, period_str: str) -> pd.DataFrame:
     return df_out
 
 
-# ── Load observations (for validation only) ───────────────────────────────────
+# -- Load observations (for validation only) -----------------------------------
 def load_obs(station_excel_name: str) -> pd.DataFrame:
     df = pd.read_excel(OBS_EXCEL, sheet_name="All_Stations", parse_dates=["date"])
     df = df[df["station_name"] == station_excel_name].copy()
@@ -128,7 +128,7 @@ def load_obs(station_excel_name: str) -> pd.DataFrame:
     return df[["obs_tmax", "obs_tmin", "obs_pr"]]
 
 
-# ── Build the 2021-2100 series directly from LARS-WG output ───────────────────
+# -- Build the 2021-2100 series directly from LARS-WG output -------------------
 def build_larswg_series(station: str, model: str, scenario: str) -> pd.DataFrame | None:
     """Concatenate the four period files into a QC'd 2021-2100 daily series."""
     period_dfs = []
@@ -143,7 +143,7 @@ def build_larswg_series(station: str, model: str, scenario: str) -> pd.DataFrame
     lars = pd.concat(period_dfs).sort_index()
     lars = lars[~lars.index.duplicated(keep="first")]
 
-    # ── Quality control (no statistical correction) ──────────────────────────
+    # -- Quality control (no statistical correction) --------------------------
     bc_pr   = np.clip(lars["pr"].values, 0.0, None)
     bc_tmax = lars["tmax"].values.astype(float)
     bc_tmin = lars["tmin"].values.astype(float)
@@ -176,7 +176,7 @@ def validate_against_obs(result: pd.DataFrame, obs_df: pd.DataFrame,
 
 def main():
     print("=" * 65)
-    print("Phase II (LARS-WG track) — direct stochastic downscaling output")
+    print("Phase II (LARS-WG track) - direct stochastic downscaling output")
     print("No second quantile mapping (LARS-WG output is already obs-anchored)")
     print("=" * 65)
 

@@ -1,7 +1,7 @@
 """
 27_fig1_study_area.py
 =====================
-Figure 1 — Study area location map (pure matplotlib, no GIS deps).
+Figure 1 - Study area location map (pure matplotlib, no GIS deps).
 Main panel: Haraz watershed area with stations, Caspian coast, Alborz ridge.
 Inset: Iran outline with study area box.
 
@@ -123,7 +123,7 @@ ax.legend(handles=legend_items, loc="lower right", fontsize=10, framealpha=0.95)
 ax.set_title("Study Area: Haraz Watershed and Adjacent Central Mazandaran Plain, Northern Iran",
              fontsize=12, fontweight="bold")
 
-# ── Inset: Iran outline (simplified polygon) ─────────────────────────────────
+# -- Inset: Iran outline (simplified polygon) ---------------------------------
 iran = np.array([
     [44.0, 39.4], [44.8, 39.7], [46.1, 38.8], [47.0, 39.6], [48.3, 38.9],
     [48.9, 38.4], [49.1, 37.6], [50.1, 37.4], [51.1, 36.8], [52.5, 36.6],

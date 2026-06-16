@@ -1,13 +1,13 @@
 """
 06_download_all_cmip6.py
 ========================
-NEX-GDDP-CMIP6 full parallel run — all 6 models × 3 experiments.
+NEX-GDDP-CMIP6 full parallel run - all 6 models x 3 experiments.
 
 Wraps 05_download_nexgddp.py logic with concurrent.futures for speed.
 Used for cross-comparison only; primary route is 07_download_cmip6_gcs.py.
 
 Variables : pr, tasmax, tasmin (tas not available in NEX-GDDP)
-Resolution: 0.25° × 0.25° (statistically downscaled)
+Resolution: 0.25° x 0.25° (statistically downscaled)
 
 Reference:
     Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
@@ -93,7 +93,7 @@ def download_one(args):
                         for chunk in r.iter_content(chunk_size=1024 * 1024):
                             f.write(chunk)
                 except Exception as e:
-                    print(f"  [{tag}] {var} {year}: download failed — {e}", flush=True)
+                    print(f"  [{tag}] {var} {year}: download failed - {e}", flush=True)
                     continue
             try:
                 ds  = xr.open_dataset(fname)
@@ -107,7 +107,7 @@ def download_one(args):
                         pd.DataFrame({"date": dates, col: convert(pt[var].values, var)}))
                 ds.close()
             except Exception as e:
-                print(f"  [{tag}] {var} {year}: extract failed — {e}", flush=True)
+                print(f"  [{tag}] {var} {year}: extract failed - {e}", flush=True)
 
     out_dir = Path(output_base) / experiment / model
     out_dir.mkdir(parents=True, exist_ok=True)

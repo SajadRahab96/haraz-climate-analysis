@@ -60,7 +60,7 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR    = Path(__file__).resolve().parent.parent
 EVAL_DIR    = BASE_DIR / "outputs" / "evaluation"
 BC_DIR      = BASE_DIR / "outputs" / "bias_corrected"
@@ -91,7 +91,7 @@ PERIOD_TRANSITIONS = ["2041-01-01", "2041-11-01", "2061-01-01",
                       "2061-11-01", "2081-01-01", "2081-11-01"]
 
 
-# ── Load monthly obs + GCM historical (2000-2014) for EM training ─────────────
+# -- Load monthly obs + GCM historical (2000-2014) for EM training -------------
 def _load_obs_monthly(station_excel: str) -> pd.DataFrame:
     df = pd.read_excel(OBS_XLSX, sheet_name="All_Stations", parse_dates=["date"])
     df = df[df["station_name"] == station_excel].copy()
@@ -147,7 +147,7 @@ def _load_gcm_hist_monthly(model: str, station_key: str) -> pd.DataFrame | None:
     return df.groupby("ym").agg(**{v: (v, how) for v, how in agg.items()})
 
 
-# ── BMA EM (Gaussian, per-member linear bias correction) ──────────────────────
+# -- BMA EM (Gaussian, per-member linear bias correction) ----------------------
 def _ols_bias_correct(y: np.ndarray, f: np.ndarray) -> np.ndarray:
     """Return a + b*f fitted to y (ordinary least squares)."""
     A = np.column_stack([np.ones_like(f), f])
@@ -257,7 +257,7 @@ def compute_bma_weights() -> tuple[pd.DataFrame, dict, dict]:
     return weights_df, weights_vs, sigma_vs, by_vs
 
 
-# ── BMA predictive aggregation for a future ensemble ──────────────────────────
+# -- BMA predictive aggregation for a future ensemble --------------------------
 def bma_predict(ensemble: np.ndarray, weights: np.ndarray, sigma2: float,
                 ci: float = 0.90, clip_zero: bool = False) -> dict:
     """
@@ -277,7 +277,7 @@ def bma_predict(ensemble: np.ndarray, weights: np.ndarray, sigma2: float,
     return {"mean": mu, "lower": lower, "upper": upper, "std": sd}
 
 
-# ── Climate BMA ───────────────────────────────────────────────────────────────
+# -- Climate BMA ---------------------------------------------------------------
 def process_climate_bma(station: str, scenario: str,
                         weights_vs: dict, sigma_vs: dict, agg_weights: np.ndarray):
     dfs, avail = {}, []
@@ -325,7 +325,7 @@ def process_climate_bma(station: str, scenario: str,
     return out
 
 
-# ── Discharge BMA (aggregate weights; no per-member discharge obs) ────────────
+# -- Discharge BMA (aggregate weights; no per-member discharge obs) ------------
 def process_discharge_bma(scenario: str, agg_weights: np.ndarray):
     p = BILSTM_DIR / f"future_discharge_{scenario}.csv"
     if not p.exists():
@@ -358,7 +358,7 @@ def plot_bma_timeseries(df, title, mean_col, lo, hi, ylabel, fname):
 
 def main():
     print("=" * 65)
-    print("Phase IV — Bayesian Model Averaging (EM, Raftery et al. 2005)")
+    print("Phase IV - Bayesian Model Averaging (EM, Raftery et al. 2005)")
     print("=" * 65)
 
     weights_df, weights_vs, sigma_vs, by_vs = compute_bma_weights()
@@ -376,14 +376,14 @@ def main():
             if dfb is not None:
                 dfb.to_csv(OUT_DIR / f"bma_climate_{station}_{scenario}_monthly.csv")
                 print(f"  {station}: saved ({len(dfb)} months)")
-                plot_bma_timeseries(dfb, f"BMA Tmax – {station} ({scenario.upper()})",
+                plot_bma_timeseries(dfb, f"BMA Tmax - {station} ({scenario.upper()})",
                                     "tmax_monthly_bma", "tmax_monthly_lower90",
                                     "tmax_monthly_upper90", "Tmax (°C)",
                                     f"bma_tmax_{station}_{scenario}.png")
         dq = process_discharge_bma(scenario, agg_weights)
         if dq is not None:
             dq.to_csv(OUT_DIR / f"bma_discharge_{scenario}_monthly.csv")
-            plot_bma_timeseries(dq, f"BMA Discharge – Karesang ({scenario.upper()})",
+            plot_bma_timeseries(dq, f"BMA Discharge - Karesang ({scenario.upper()})",
                                 "Q_bma_mean", "Q_bma_lower90", "Q_bma_upper90",
                                 "Discharge (m³/s)", f"bma_discharge_{scenario}.png")
             print(f"  Discharge BMA saved ({scenario}).")

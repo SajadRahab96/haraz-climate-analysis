@@ -40,7 +40,7 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR  = Path(__file__).resolve().parent.parent
 BMA_DIR   = BASE_DIR / "outputs" / "bma"
 OBS_XLSX  = BASE_DIR / "ClimateData_GapFilled_2000_2020.xlsx"
@@ -66,7 +66,7 @@ STATION_EXCEL_MAP = {
 }
 
 
-# ── Load observed monthly ─────────────────────────────────────────────────────
+# -- Load observed monthly -----------------------------------------------------
 def load_obs_monthly_for_compound(station_excel: str) -> pd.DataFrame:
     df = pd.read_excel(OBS_XLSX, sheet_name="All_Stations", parse_dates=["date"])
     df = df[df["station_name"] == station_excel].copy()
@@ -80,7 +80,7 @@ def load_obs_monthly_for_compound(station_excel: str) -> pd.DataFrame:
     return monthly.sort_values("date").reset_index(drop=True)
 
 
-# ── Detect compound events ────────────────────────────────────────────────────
+# -- Detect compound events ----------------------------------------------------
 def detect_compound_events(df: pd.DataFrame,
                              tmax_threshold: float,
                              pr_threshold: float) -> pd.DataFrame:
@@ -112,7 +112,7 @@ def detect_compound_events(df: pd.DataFrame,
     return df
 
 
-# ── Seasonal analysis ─────────────────────────────────────────────────────────
+# -- Seasonal analysis ---------------------------------------------------------
 def seasonal_compound_frequency(df_compound: pd.DataFrame) -> pd.DataFrame:
     """Count compound events by season."""
     df = df_compound.copy()
@@ -124,7 +124,7 @@ def seasonal_compound_frequency(df_compound: pd.DataFrame) -> pd.DataFrame:
     return df.groupby("season")["compound"].sum().rename("n_compound")
 
 
-# ── Decadal trend ─────────────────────────────────────────────────────────────
+# -- Decadal trend -------------------------------------------------------------
 def decadal_frequency(df_compound: pd.DataFrame) -> pd.DataFrame:
     """Count compound events per decade."""
     df = df_compound.copy()
@@ -132,10 +132,10 @@ def decadal_frequency(df_compound: pd.DataFrame) -> pd.DataFrame:
     return df.groupby("decade")["compound"].sum().reset_index()
 
 
-# ── Main analysis ─────────────────────────────────────────────────────────────
+# -- Main analysis -------------------------------------------------------------
 def main():
     print("=" * 65)
-    print("Phase IV — Compound Hot-Dry Event Analysis")
+    print("Phase IV - Compound Hot-Dry Event Analysis")
     print("=" * 65)
 
     all_summaries = []
@@ -218,7 +218,7 @@ def main():
                             "compound_intensity", "compound_duration"]].to_csv(
                 out_path, index=False)
 
-            # ── Figure: stacked bar + frequency change ───────────────────────
+            # -- Figure: stacked bar + frequency change -----------------------
             fig = plt.figure(figsize=(16, 10))
             gs  = gridspec.GridSpec(3, 2, figure=fig)
 
@@ -234,7 +234,7 @@ def main():
             ax1.axvline(pd.Timestamp("2021-01-01"), color="gray", ls=":", alpha=0.5)
             ax1.axvline(pd.Timestamp("2061-01-01"), color="gray", ls="--", alpha=0.5)
             ax1.set_ylabel("Tmax (°C)")
-            ax1.set_title(f"Compound Hot-Dry Events — {station} ({scenario.upper()})")
+            ax1.set_title(f"Compound Hot-Dry Events - {station} ({scenario.upper()})")
             ax1.legend(fontsize=8)
             ax1.grid(True, alpha=0.3)
 
@@ -286,7 +286,7 @@ def main():
 
             print(f"  {scenario}: saved compound events and figure")
 
-    # ── Summary table ─────────────────────────────────────────────────────────
+    # -- Summary table ---------------------------------------------------------
     if all_summaries:
         summary_df = pd.DataFrame(all_summaries)
         summary_df.to_csv(OUT_DIR / "compound_summary.csv", index=False)
@@ -310,11 +310,11 @@ def main():
                     near_mult = near_freq[0] / base_freq[0] if len(near_freq) else np.nan
                     long_mult = long_freq[0] / base_freq[0] if len(long_freq) else np.nan
                     print(f"  {station:12s} | {scenario}: "
-                          f"baseline={base_freq[0]:.1f}% → "
+                          f"baseline={base_freq[0]:.1f}% -> "
                           f"near={near_freq[0] if len(near_freq) else 'N/A':.1f}% "
-                          f"(×{near_mult:.1f}) → "
+                          f"(x{near_mult:.1f}) -> "
                           f"long={long_freq[0] if len(long_freq) else 'N/A':.1f}% "
-                          f"(×{long_mult:.1f})")
+                          f"(x{long_mult:.1f})")
 
     print(f"\nDone. Outputs in: {OUT_DIR}")
 

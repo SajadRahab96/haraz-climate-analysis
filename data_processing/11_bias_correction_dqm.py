@@ -39,7 +39,7 @@ from scipy.interpolate import interp1d
 
 warnings.filterwarnings("ignore")
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# -- Configuration -------------------------------------------------------------
 BASE_DIR   = Path(__file__).resolve().parent.parent
 DATA_GCS   = BASE_DIR / "data" / "cmip6_gcs"
 OBS_EXCEL  = BASE_DIR / "ClimateData_GapFilled_2000_2020.xlsx"
@@ -65,7 +65,7 @@ N_QUANTILES = 100   # quantile levels for mapping (1%, 2%, ..., 100%)
 WET_THRESH  = 0.1   # mm/day threshold for wet day (obs)
 
 
-# ── Core DQM Functions ────────────────────────────────────────────────────────
+# -- Core DQM Functions --------------------------------------------------------
 
 def build_quantile_map(obs_calib: np.ndarray, gcm_calib: np.ndarray,
                         n_q: int = N_QUANTILES) -> interp1d:
@@ -153,7 +153,7 @@ def dqm_precipitation(obs_calib: np.ndarray, gcm_calib: np.ndarray,
     return corrected
 
 
-# ── Data Loaders ──────────────────────────────────────────────────────────────
+# -- Data Loaders --------------------------------------------------------------
 
 def load_obs(station_excel_name: str) -> pd.DataFrame:
     """Load HBCD-2020 for one station, return daily DataFrame."""
@@ -167,7 +167,7 @@ def load_obs(station_excel_name: str) -> pd.DataFrame:
 def parse_360day_dates(raw_dates: pd.Series, year_start: int, year_end: int) -> pd.DatetimeIndex:
     """
     Convert a 360-day calendar date series to Gregorian by linear interpolation.
-    The 360-day calendar has exactly 12 months × 30 days per year.
+    The 360-day calendar has exactly 12 months x 30 days per year.
     Strategy: map each 360-day sequence to the corresponding Gregorian calendar
     day-of-year within each year using linear resampling.
     """
@@ -224,7 +224,7 @@ def load_gcm_csv(model: str, scenario: str, station_key: str) -> pd.DataFrame:
         valid_dates = False
 
     if not valid_dates:
-        # 360-day calendar — UKESM1-0-LL
+        # 360-day calendar - UKESM1-0-LL
         print(f"      NOTE: 360-day calendar detected for {csv_path.name} -- remapping to Gregorian")
         greg_idx = parse_360day_dates(df["date"], 2000, 2100)
         df["date"] = greg_idx
@@ -244,7 +244,7 @@ def load_gcm_csv(model: str, scenario: str, station_key: str) -> pd.DataFrame:
     return df[["gcm_pr", "gcm_tmax", "gcm_tmin"]]
 
 
-# ── Validation Plot ───────────────────────────────────────────────────────────
+# -- Validation Plot -----------------------------------------------------------
 
 def plot_monthly_comparison(obs_monthly, raw_monthly, bc_monthly,
                              label, station, model, scenario, var):
@@ -266,12 +266,12 @@ def plot_monthly_comparison(obs_monthly, raw_monthly, bc_monthly,
     plt.close(fig)
 
 
-# ── Main Pipeline ─────────────────────────────────────────────────────────────
+# -- Main Pipeline -------------------------------------------------------------
 
 def process_station_model_scenario(station_key: str, model: str, scenario: str,
                                     obs_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run DQM for one station × model × scenario combination.
+    Run DQM for one station x model x scenario combination.
     Returns bias-corrected daily DataFrame for the future period.
     """
     # Load historical GCM (for calibration)
@@ -301,7 +301,7 @@ def process_station_model_scenario(station_key: str, model: str, scenario: str,
     obs_cal  = obs_cal.loc[common_idx]
     hist_cal = hist_cal.loc[common_idx]
 
-    # ── Bias correct each variable ────────────────────────────────────────────
+    # -- Bias correct each variable --------------------------------------------
     results = {"date": fut_df.index}
 
     # Temperature (additive DQM)
@@ -326,14 +326,14 @@ def process_station_model_scenario(station_key: str, model: str, scenario: str,
     bc_pr   = dqm_precipitation(obs_pr[valid_pr], gcm_pr[valid_pr], fut_pr)
     results["bc_pr"] = bc_pr
 
-    # ── Raw GCM for reference ─────────────────────────────────────────────────
+    # -- Raw GCM for reference -------------------------------------------------
     results["raw_tmax"] = fut_df["gcm_tmax"].values
     results["raw_tmin"] = fut_df["gcm_tmin"].values
     results["raw_pr"]   = fut_df["gcm_pr"].values
 
     df_out = pd.DataFrame(results).set_index("date")
 
-    # ── Calibration validation plot (first run only) ──────────────────────────
+    # -- Calibration validation plot (first run only) --------------------------
     # Apply the same correction to the calibration period to check quality
     bc_cal_tmax = dqm_temperature(obs_cal["obs_tmax"].values,
                                    hist_cal["gcm_tmax"].values,
@@ -370,7 +370,7 @@ def process_station_model_scenario(station_key: str, model: str, scenario: str,
 
 def main():
     print("=" * 65)
-    print("Phase II — Bias Correction (DQM) for CMIP6 Projections")
+    print("Phase II - Bias Correction (DQM) for CMIP6 Projections")
     print("=" * 65)
 
     # Load observations once per station
@@ -393,11 +393,11 @@ def main():
                 )
                 if result is not None:
                     result.to_csv(out_path)
-                    print(f"saved ({len(result):,} days, {result.index[0].date()}–{result.index[-1].date()})")
+                    print(f"saved ({len(result):,} days, {result.index[0].date()}-{result.index[-1].date()})")
                 else:
                     print("skipped")
 
-    # ── Summary statistics ─────────────────────────────────────────────────────
+    # -- Summary statistics -----------------------------------------------------
     print(f"\n{'='*65}")
     csv_files = list(OUT_DIR.glob("*_bc.csv"))
     print(f"Bias-corrected files created: {len(csv_files)}")

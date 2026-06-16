@@ -2,19 +2,19 @@
 """
 09_cmip6_evaluation.py
 ======================
-CMIP6 GCM Historical Evaluation — Haraz Watershed Study
+CMIP6 GCM Historical Evaluation - Haraz Watershed Study
 
 Evaluates six CMIP6 models against the HBCD-2020 observational baseline
 (2000-2014) at three synoptic stations (Amol, Gharakhil, Sari).
 
-Evaluation basis: MONTHLY TIME SERIES (n ≈ 180 month-pairs per
+Evaluation basis: MONTHLY TIME SERIES (n ~ 180 month-pairs per
 station/variable), yielding statistically robust RMSE, MAE, PBIAS,
-NSE, KGE, and Pearson r — consistent with Section 3.5 of the manuscript.
+NSE, KGE, and Pearson r - consistent with Section 3.5 of the manuscript.
 
 Taylor diagrams use the same monthly time series statistics (corr, alpha).
 
 Metrics reported (per Section 3.5):
-    RMSE, MAE, PBIAS, NSE, KGE, r — Taylor diagram visualization
+    RMSE, MAE, PBIAS, NSE, KGE, r - Taylor diagram visualization
 
 Reference:
     Rahab-Rajaei, S., Motiee, H. (2025). Hydroclimatic Projections Under
@@ -57,9 +57,9 @@ VARIABLES = {
 START_YEAR = 2000
 END_YEAR   = 2014
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Data loading
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def load_observed_data() -> pd.DataFrame:
     """Load HBCD-2020 gap-filled dataset with standardised station names."""
@@ -126,7 +126,7 @@ def load_cmip6_model(model_name: str, station_name: str) -> pd.DataFrame | None:
         else:
             df["tmax"] = df["tmin"] + 6.2  # last-resort fallback (no tas field)
 
-    # Parse date → year_int, month_int
+    # Parse date -> year_int, month_int
     if "date" in df.columns:
         ds = df["date"].astype(str)
         df["year_int"]  = ds.str.slice(0, 4).astype(int)
@@ -140,7 +140,7 @@ def load_cmip6_model(model_name: str, station_name: str) -> pd.DataFrame | None:
 
     df = df[(df["year_int"] >= START_YEAR) & (df["year_int"] <= END_YEAR)].copy()
 
-    # Auto-correct units: K → °C; kg m⁻² s⁻¹ → mm day⁻¹
+    # Auto-correct units: K -> °C; kg m⁻² s⁻¹ -> mm day⁻¹
     for col in ["tmax", "tmin"]:
         if col in df.columns and df[col].dropna().mean() > 100:
             df[col] = df[col] - 273.15
@@ -153,9 +153,9 @@ def load_cmip6_model(model_name: str, station_name: str) -> pd.DataFrame | None:
 
     return df[["year_int", "month_int", "tmax", "tmin", "pr"]].reset_index(drop=True)
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Metrics
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def compute_metrics(obs: np.ndarray, sim: np.ndarray) -> dict:
     """
@@ -219,22 +219,22 @@ def compute_metrics(obs: np.ndarray, sim: np.ndarray) -> dict:
         "index_of_agreement": d, "alpha": alpha, "beta": beta,
     }
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Evaluation loop
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def evaluate_all_models() -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Evaluate all CMIP6 models against HBCD-2020 on MONTHLY TIME SERIES.
 
     Observations and simulations are aggregated to calendar-month means
-    within each year (Jan 2000 … Dec 2014), yielding n ≈ 180 paired data
+    within each year (Jan 2000 ... Dec 2014), yielding n ~ 180 paired data
     points per station / variable before NaN filtering.  This is consistent
     with the methodology described in Section 3.5 of the manuscript.
     """
     print("=" * 60)
-    print("CMIP6 GCM EVALUATION — Monthly Time Series (n ≈ 180)")
-    print(f"Period: {START_YEAR}–{END_YEAR}")
+    print("CMIP6 GCM EVALUATION - Monthly Time Series (n ~ 180)")
+    print(f"Period: {START_YEAR}-{END_YEAR}")
     print("=" * 60)
 
     obs_raw    = load_observed_data()
@@ -242,7 +242,7 @@ def evaluate_all_models() -> tuple[pd.DataFrame, pd.DataFrame]:
     all_data:   list[pd.DataFrame] = []
 
     for model in MODELS:
-        print(f"\nProcessing {model} …")
+        print(f"\nProcessing {model} ...")
         for station in STATIONS:
             print(f"  Station: {station}")
             try:
@@ -253,7 +253,7 @@ def evaluate_all_models() -> tuple[pd.DataFrame, pd.DataFrame]:
                     print(f"    [skip] No data for {model} / {station}")
                     continue
 
-                # ── Monthly aggregation ─────────────────────────────────────
+                # -- Monthly aggregation -------------------------------------
                 obs_monthly = (
                     obs_station
                     .groupby(["year_int", "month_int"])[["tmax", "tmin", "pr"]]
@@ -285,7 +285,7 @@ def evaluate_all_models() -> tuple[pd.DataFrame, pd.DataFrame]:
                     "day":   1,
                 })
 
-                # ── Collect time series data for plots ──────────────────────
+                # -- Collect time series data for plots ----------------------
                 for var_key in VARIABLES:
                     o_col = f"{var_key}_obs"
                     s_col = f"{var_key}_sim"
@@ -300,7 +300,7 @@ def evaluate_all_models() -> tuple[pd.DataFrame, pd.DataFrame]:
                         "station":  station,
                     }))
 
-                # ── Compute and store metrics ───────────────────────────────
+                # -- Compute and store metrics -------------------------------
                 for var_key, (_, var_label) in VARIABLES.items():
                     o_col = f"{var_key}_obs"
                     s_col = f"{var_key}_sim"
@@ -332,9 +332,9 @@ def evaluate_all_models() -> tuple[pd.DataFrame, pd.DataFrame]:
     data_df    = pd.concat(all_data, ignore_index=True) if all_data else pd.DataFrame()
     return metrics_df, data_df
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Skill scores
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def calculate_skill_scores(metrics_df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -344,7 +344,7 @@ def calculate_skill_scores(metrics_df: pd.DataFrame) -> pd.DataFrame:
     Lower-is-better (RMSE, MAE, |PBIAS|): inverted normalisation.
 
     Note: |PBIAS| is used so that cold and warm biases of equal magnitude
-    receive equal penalty — preventing sign-dependent distortion of skill.
+    receive equal penalty - preventing sign-dependent distortion of skill.
     """
     if metrics_df.empty:
         return pd.DataFrame()
@@ -380,18 +380,18 @@ def calculate_skill_scores(metrics_df: pd.DataFrame) -> pd.DataFrame:
 
     return skill_df
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Visualisation
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def generate_taylor_diagram(metrics_df: pd.DataFrame, output_dir: Path) -> None:
     """
-    Taylor diagrams — one per variable.
+    Taylor diagrams - one per variable.
 
     Point position: angle = arccos(r), radius = σ_sim / σ_obs (alpha).
-    Statistics are derived from monthly time series (n ≈ 180).
+    Statistics are derived from monthly time series (n ~ 180).
     """
-    print("\nGenerating Taylor diagrams …")
+    print("\nGenerating Taylor diagrams ...")
     colors    = plt.cm.Dark2(np.linspace(0, 1, len(MODELS)))
     color_map = dict(zip(MODELS, colors))
 
@@ -436,7 +436,7 @@ def generate_heatmap(skill_df: pd.DataFrame, output_dir: Path) -> None:
     """Skill score heatmap: rows = models, columns = variables."""
     if skill_df.empty or "skill_score" not in skill_df.columns:
         return
-    print("\nGenerating skill score heatmap …")
+    print("\nGenerating skill score heatmap ...")
     pivot = skill_df.pivot_table(
         index="model", columns="variable", values="skill_score", aggfunc="mean"
     )
@@ -447,7 +447,7 @@ def generate_heatmap(skill_df: pd.DataFrame, output_dir: Path) -> None:
     sns.heatmap(pivot, annot=True, fmt=".3f", cmap="YlGnBu",
                 center=0.5, vmin=0, vmax=1, ax=ax, linewidths=0.5)
     ax.set_title(
-        "CMIP6 GCM Composite Skill Scores — Monthly Time Series Evaluation\n"
+        "CMIP6 GCM Composite Skill Scores - Monthly Time Series Evaluation\n"
         f"({START_YEAR}\u2013{END_YEAR}, 3 stations averaged, n\u2009\u2248\u2009180)",
         fontsize=12, pad=12,
     )
@@ -457,10 +457,10 @@ def generate_heatmap(skill_df: pd.DataFrame, output_dir: Path) -> None:
 
 
 def generate_time_series_plots(data_df: pd.DataFrame, output_dir: Path) -> None:
-    """Monthly observed vs. simulated time series — one figure per model × station."""
+    """Monthly observed vs. simulated time series - one figure per model x station."""
     if data_df.empty:
         return
-    print("\nGenerating time series plots …")
+    print("\nGenerating time series plots ...")
     for model in data_df["model"].unique():
         for station in data_df.loc[data_df["model"] == model, "station"].unique():
             sub  = data_df[(data_df["model"] == model) & (data_df["station"] == station)]
@@ -481,7 +481,7 @@ def generate_time_series_plots(data_df: pd.DataFrame, output_dir: Path) -> None:
                     ax.legend(loc="upper right", fontsize=10)
 
             plt.suptitle(
-                f"Monthly Validation: {model} vs HBCD-2020 — {station} "
+                f"Monthly Validation: {model} vs HBCD-2020 - {station} "
                 f"({START_YEAR}\u2013{END_YEAR})",
                 fontsize=13, y=1.01,
             )
@@ -489,13 +489,13 @@ def generate_time_series_plots(data_df: pd.DataFrame, output_dir: Path) -> None:
             plt.savefig(output_dir / f"timeseries_{model}_{station}.png", dpi=300)
             plt.close()
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Output
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def save_results(metrics_df: pd.DataFrame, skill_df: pd.DataFrame, output_dir: Path) -> None:
     """Write all results to UTF-8-BOM CSV files (opens correctly in Excel)."""
-    print("\nSaving results …")
+    print("\nSaving results ...")
     enc = {"encoding": "utf-8-sig"}
 
     metrics_df.to_csv(output_dir / "cmip6_evaluation_metrics.csv", index=False, **enc)
@@ -513,12 +513,12 @@ def save_results(metrics_df: pd.DataFrame, skill_df: pd.DataFrame, output_dir: P
         print("\nModel Rankings (composite skill score):")
         print(overall.to_string())
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Entry point
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def main() -> None:
-    print("CMIP6 GCM Evaluation — Haraz Watershed")
+    print("CMIP6 GCM Evaluation - Haraz Watershed")
     print("Evaluation basis: monthly time series  (n \u2248 180 per station/variable)")
     print("=" * 60)
 

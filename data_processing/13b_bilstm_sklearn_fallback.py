@@ -110,7 +110,7 @@ def main():
                  ).to_csv(OUT_DIR / "validation_results.csv", index=False)
     pd.DataFrame([metrics]).to_csv(OUT_DIR / "validation_metrics.csv", index=False)
 
-    # ── Future projection ─────────────────────────────────────────────────────
+    # -- Future projection -----------------------------------------------------
     full_obs = pd.read_csv(FLOW_DIR / "karesang_monthly_2000_2016.csv",
                            parse_dates=["gregorian_date"])
 

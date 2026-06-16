@@ -8,7 +8,7 @@ Used here for cross-comparison only; the primary downscaling pathway
 is LARS-WG 8 applied to raw CMIP6 GCM outputs (see 07_download_cmip6_gcs.py).
 
 Variables : pr, tasmax, tasmin (tas not available in NEX-GDDP)
-Resolution: 0.25° × 0.25° (regridded from raw GCMs)
+Resolution: 0.25° x 0.25° (regridded from raw GCMs)
 
 Reference:
     Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]

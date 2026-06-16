@@ -4,9 +4,9 @@
 Systematic gap detection across all three synoptic stations in HBCD-2020.
 
 Identifies three categories of data absence:
-  (i)   Structural gaps — consecutive periods with no IRIMO portal records
-  (ii)  Scattered missing values — isolated absences (1-3 days)
-  (iii) Potentially erroneous values — Tmax < Tmin, Pr < 0
+  (i)   Structural gaps - consecutive periods with no IRIMO portal records
+  (ii)  Scattered missing values - isolated absences (1-3 days)
+  (iii) Potentially erroneous values - Tmax < Tmin, Pr < 0
 
 Reference:
     Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
@@ -65,7 +65,7 @@ def analyze_station(df: pd.DataFrame, name: str) -> pd.DataFrame:
     records = []
     for var in VARIABLES:
         if var not in df.columns:
-            log(f"  [{name}] column '{var}' not found — skipping")
+            log(f"  [{name}] column '{var}' not found - skipping")
             continue
         col = df[var]
         n_total   = len(col)

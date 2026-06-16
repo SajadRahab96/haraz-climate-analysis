@@ -20,13 +20,13 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR   = Path(__file__).resolve().parent.parent
 DATA_EXCEL = BASE_DIR / "ClimateData_GapFilled_2000_2020.xlsx"
 OUT_DIR    = BASE_DIR / "LARS weather generator 8" / "Data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# ── Station metadata ──────────────────────────────────────────────────────────
+# -- Station metadata ----------------------------------------------------------
 STATIONS = {
     "Amol": {
         "name_in_excel": "Amol",
@@ -54,12 +54,12 @@ STATIONS = {
 # Mean CO2 concentration for 2000-2020 baseline (ppm, Mauna Loa annual mean)
 CO2_BASELINE = 390.769   # same value used in the existing Amol.st
 
-# ── Load HBCD-2020 ────────────────────────────────────────────────────────────
+# -- Load HBCD-2020 ------------------------------------------------------------
 print("Loading HBCD-2020 ...")
 df_all = pd.read_excel(DATA_EXCEL, sheet_name="All_Stations", parse_dates=["date"])
-print(f"  Rows: {len(df_all):,} | Period: {df_all['date'].min().date()} – {df_all['date'].max().date()}")
+print(f"  Rows: {len(df_all):,} | Period: {df_all['date'].min().date()} - {df_all['date'].max().date()}")
 
-# ── Process each station ──────────────────────────────────────────────────────
+# -- Process each station ------------------------------------------------------
 for key, meta in STATIONS.items():
     print(f"\nProcessing {key} ...")
 
@@ -68,8 +68,8 @@ for key, meta in STATIONS.items():
     df = df.sort_values("date").reset_index(drop=True)
 
     # Use calibration period 2000-2020 for LARS-WG site analysis
-    # (LARS-WG recommends ≥20 years)
-    print(f"  Rows: {len(df):,} | {df['date'].min().date()} – {df['date'].max().date()}")
+    # (LARS-WG recommends >=20 years)
+    print(f"  Rows: {len(df):,} | {df['date'].min().date()} - {df['date'].max().date()}")
 
     # Check for missing values
     missing = df[["tmax", "tmin", "rrr24"]].isnull().sum()
@@ -86,13 +86,13 @@ for key, meta in STATIONS.items():
     df["month"] = df["date"].dt.month
     df["day"]   = df["date"].dt.day
 
-    # ── Write .dat file ───────────────────────────────────────────────────────
+    # -- Write .dat file -------------------------------------------------------
     dat_path = OUT_DIR / f"{meta['file_prefix']}.dat"
     out_rows = df[["year", "month", "day", "tmax", "tmin", "rrr24"]]
     out_rows.to_csv(dat_path, sep="\t", header=False, index=False)
     print(f"  Saved: {dat_path}  ({len(out_rows):,} rows)")
 
-    # ── Write .st site file ───────────────────────────────────────────────────
+    # -- Write .st site file ---------------------------------------------------
     st_content = f"""[SITE]\t\t\t
 {meta['file_prefix']}
 [LAT, LON and ALT]\t
@@ -110,7 +110,7 @@ YEAR MONTH DAY MAX MIN RAIN\t\t\t
         f.write(st_content)
     print(f"  Saved: {st_path}")
 
-# ── Summary ───────────────────────────────────────────────────────────────────
+# -- Summary -------------------------------------------------------------------
 print("\n" + "="*60)
 print("LARS-WG site files ready in:", OUT_DIR)
 print("\nNext steps:")

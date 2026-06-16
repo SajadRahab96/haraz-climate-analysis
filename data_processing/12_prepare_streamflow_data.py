@@ -8,7 +8,7 @@ Prepares the streamflow dataset by:
   4. Splitting into train (2000-2012) / validation (2013-2016) sets
   5. Saving clean datasets for BiLSTM training
 
-Solar Hijri → Gregorian conversion:
+Solar Hijri -> Gregorian conversion:
   Each Hijri year Y begins ~March 21 of Gregorian year (Y + 621).
   Persian months: Farvardin(4) Ordibehesht(5) Khordad(6) Tir(7)
                   Mordad(8) Shahrivar(9) Mehr(10) Aban(11) Azar(12)
@@ -31,46 +31,46 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR   = Path(__file__).resolve().parent.parent
 FLOW_XLSX  = BASE_DIR / "KareSang.xlsx"
 OBS_XLSX   = BASE_DIR / "ClimateData_GapFilled_2000_2020.xlsx"
 OUT_DIR    = BASE_DIR / "outputs" / "streamflow"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Persian month column names in the Excel → Persian month number → Gregorian shift
+# Persian month column names in the Excel -> Persian month number -> Gregorian shift
 # Persian months 1-6 start in Gregorian months 4-9 (same year)
 # Persian months 7-12 start in Gregorian months 10-3 (month 7-9: same Gregorian year, 10-12: next year)
 PERSIAN_MONTH_COLS = {
-    "far": 1,   # Farvardin  → ~April (Gregorian year = SH year + 621)
+    "far": 1,   # Farvardin  -> ~April (Gregorian year = SH year + 621)
     "ord": 2,   # Ordibehesht
     "khr": 3,   # Khordad
     "tir": 4,   # Tir
     "mor": 5,   # Mordad
     "shr": 6,   # Shahrivar
-    "mhr": 7,   # Mehr       → ~October
+    "mhr": 7,   # Mehr       -> ~October
     "abn": 8,   # Aban
     "azr": 9,   # Azar
     "dey": 10,  # Dey
     "bah": 11,  # Bahman
-    "esf": 12,  # Esfand     → ~March (next Gregorian year)
+    "esf": 12,  # Esfand     -> ~March (next Gregorian year)
 }
 
 # Approximate Gregorian month for each Persian month
 # and whether it falls in the next Gregorian year
 PERSIAN_TO_GREGORIAN_MONTH = {
-    1:  (4,  0),   # Farvardin  → April,     same year
-    2:  (5,  0),   # Ordibehesht→ May
-    3:  (6,  0),   # Khordad    → June
-    4:  (7,  0),   # Tir        → July
-    5:  (8,  0),   # Mordad     → August
-    6:  (9,  0),   # Shahrivar  → September
-    7:  (10, 0),   # Mehr       → October
-    8:  (11, 0),   # Aban       → November
-    9:  (12, 0),   # Azar       → December
-    10: (1,  1),   # Dey        → January  +1 year
-    11: (2,  1),   # Bahman     → February +1 year
-    12: (3,  1),   # Esfand     → March    +1 year
+    1:  (4,  0),   # Farvardin  -> April,     same year
+    2:  (5,  0),   # Ordibehesht-> May
+    3:  (6,  0),   # Khordad    -> June
+    4:  (7,  0),   # Tir        -> July
+    5:  (8,  0),   # Mordad     -> August
+    6:  (9,  0),   # Shahrivar  -> September
+    7:  (10, 0),   # Mehr       -> October
+    8:  (11, 0),   # Aban       -> November
+    9:  (12, 0),   # Azar       -> December
+    10: (1,  1),   # Dey        -> January  +1 year
+    11: (2,  1),   # Bahman     -> February +1 year
+    12: (3,  1),   # Esfand     -> March    +1 year
 }
 
 def sh_to_gregorian_year(sh_year: int) -> int:
@@ -147,27 +147,27 @@ def aggregate_obs_monthly(obs_excel: Path) -> pd.DataFrame:
 
 def main():
     print("=" * 60)
-    print("Phase III — Streamflow Data Preparation")
+    print("Phase III - Streamflow Data Preparation")
     print("=" * 60)
 
-    # ── Load Karesang flow ────────────────────────────────────────────────────
+    # -- Load Karesang flow ----------------------------------------------------
     print("\nLoading Karesang discharge ...")
     df_raw = pd.read_excel(FLOW_XLSX, sheet_name="Sheet1")
     karesang_raw = df_raw[df_raw["station"].str.contains("كره سنگ", na=False)].copy()
     print(f"  Karesang rows (SH years): {len(karesang_raw)}")
-    print(f"  SH year range: {karesang_raw['sal'].min()} – {karesang_raw['sal'].max()}")
+    print(f"  SH year range: {karesang_raw['sal'].min()} - {karesang_raw['sal'].max()}")
 
     flow_monthly = expand_karesang(karesang_raw)
     print(f"  Expanded to {len(flow_monthly):,} monthly records")
-    print(f"  Gregorian date range: {flow_monthly['gregorian_date'].min().date()} – "
+    print(f"  Gregorian date range: {flow_monthly['gregorian_date'].min().date()} - "
           f"{flow_monthly['gregorian_date'].max().date()}")
 
-    # ── Load climate observations ─────────────────────────────────────────────
+    # -- Load climate observations ---------------------------------------------
     print("\nAggregating HBCD-2020 to monthly ...")
     clim_monthly = aggregate_obs_monthly(OBS_XLSX)
     print(f"  Monthly climate records: {len(clim_monthly):,}")
 
-    # ── Merge on year-month ───────────────────────────────────────────────────
+    # -- Merge on year-month ---------------------------------------------------
     merged = pd.merge(
         flow_monthly[["gregorian_date", "year", "month", "Q_m3s"]],
         clim_monthly[["gregorian_date", "P_mm_month", "Tmax_mean", "Tmin_mean", "Tavg_mean"]],
@@ -183,12 +183,12 @@ def main():
         merged = merged.drop_duplicates(subset="gregorian_date", keep="first").reset_index(drop=True)
 
     print(f"\nMerged dataset: {len(merged):,} months")
-    print(f"  Date range: {merged['gregorian_date'].min().date()} – {merged['gregorian_date'].max().date()}")
+    print(f"  Date range: {merged['gregorian_date'].min().date()} - {merged['gregorian_date'].max().date()}")
     print(f"  Missing Q: {merged['Q_m3s'].isna().sum()}")
     print(f"\n  Descriptive statistics:")
     print(merged[["Q_m3s", "P_mm_month", "Tmax_mean", "Tmin_mean"]].describe().round(2))
 
-    # ── Filter to study period 2000-2016 ─────────────────────────────────────
+    # -- Filter to study period 2000-2016 -------------------------------------
     study = merged[
         (merged["gregorian_date"] >= "2000-01-01") &
         (merged["gregorian_date"] <= "2016-12-31")
@@ -199,12 +199,12 @@ def main():
     # Fill any remaining Q gaps with linear interpolation
     study["Q_m3s"] = study["Q_m3s"].interpolate(method="linear", limit=3)
 
-    # ── Save full dataset ─────────────────────────────────────────────────────
+    # -- Save full dataset -----------------------------------------------------
     full_path = OUT_DIR / "karesang_monthly_2000_2016.csv"
     study.to_csv(full_path, index=False)
     print(f"\nSaved: {full_path}")
 
-    # ── Train / Validation split ──────────────────────────────────────────────
+    # -- Train / Validation split ----------------------------------------------
     train = study[study["gregorian_date"] <= "2012-12-31"]
     val   = study[
         (study["gregorian_date"] >= "2013-01-01") &
@@ -218,7 +218,7 @@ def main():
     print(f"Train (2000-2012): {len(train):,} months -> {train_path.name}")
     print(f"Val   (2013-2016): {len(val):,}  months -> {val_path.name}")
 
-    # ── Plot: Q time series ───────────────────────────────────────────────────
+    # -- Plot: Q time series ---------------------------------------------------
     fig, axes = plt.subplots(2, 1, figsize=(14, 8))
 
     axes[0].plot(study["gregorian_date"], study["Q_m3s"], "b-o", ms=3, lw=1.2)
@@ -227,7 +227,7 @@ def main():
     axes[0].axvspan(pd.Timestamp("2000-01-01"), pd.Timestamp("2012-12-31"),
                     alpha=0.1, color="green", label="Training")
     axes[0].set_ylabel("Discharge (m³/s)")
-    axes[0].set_title("Haraz–Karesang Monthly Discharge (2000–2016)")
+    axes[0].set_title("Haraz-Karesang Monthly Discharge (2000-2016)")
     axes[0].legend()
     axes[0].grid(True, alpha=0.3)
 
@@ -244,7 +244,7 @@ def main():
     plt.close(fig)
     print(f"Plot saved: {fig_path}")
 
-    # ── Correlation matrix ────────────────────────────────────────────────────
+    # -- Correlation matrix ----------------------------------------------------
     print("\nCorrelation with discharge:")
     corr = study[["Q_m3s", "P_mm_month", "Tmax_mean", "Tmin_mean", "Tavg_mean"]].corr()
     print(corr["Q_m3s"].round(3))

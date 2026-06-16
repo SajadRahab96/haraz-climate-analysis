@@ -9,12 +9,12 @@ Computes standardized drought indices from bias-corrected BMA ensemble outputs:
 
 Method:
   SPI:  Fit Gamma distribution to monthly precipitation accumulations
-        → standardize using Normal quantile transform (McKee et al., 1993)
+        -> standardize using Normal quantile transform (McKee et al., 1993)
   SPEI: Same as SPI but applied to (P - PET) water balance
         Fit Log-Logistic distribution (Vicente-Serrano et al., 2010)
 
-Baseline for fitting:  2000–2020 (HBCD-2020 observed)
-Application periods:   2021–2060 (near-term) and 2061–2100 (long-term)
+Baseline for fitting:  2000-2020 (HBCD-2020 observed)
+Application periods:   2021-2060 (near-term) and 2061-2100 (long-term)
 
 Outputs:
   outputs/drought/drought_indices_{station}_{scenario}.csv
@@ -33,7 +33,7 @@ from scipy.stats import gamma, norm, fisk   # fisk = log-logistic
 
 warnings.filterwarnings("ignore")
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR  = Path(__file__).resolve().parent.parent
 BMA_DIR   = BASE_DIR / "outputs" / "bma"
 OBS_XLSX  = BASE_DIR / "ClimateData_GapFilled_2000_2020.xlsx"
@@ -84,7 +84,7 @@ DROUGHT_CLASSES = {
 }
 
 
-# ── PET method selector ───────────────────────────────────────────────────────
+# -- PET method selector -------------------------------------------------------
 # Hargreaves (FAO-56) is used by default. The Thornthwaite (1948) scheme is
 # retained for reference only: being a function of mean temperature alone, it is
 # well documented to overestimate the PET response to warming and therefore to
@@ -125,7 +125,7 @@ def hargreaves_pet(tmax_monthly: np.ndarray, tmin_monthly: np.ndarray,
     return np.clip(et0_daily * days_in_month, 0.0, None)
 
 
-# ── PET (Thornthwaite — reference only) ────────────────────────────────────────
+# -- PET (Thornthwaite - reference only) ----------------------------------------
 def thornthwaite_pet(tavg_monthly: np.ndarray, lat_deg: float = 36.5) -> np.ndarray:
     """
     Estimate monthly PET (mm) using Thornthwaite (1948) method.
@@ -159,7 +159,7 @@ def thornthwaite_pet(tavg_monthly: np.ndarray, lat_deg: float = 36.5) -> np.ndar
     return np.clip(pet, 0, None)
 
 
-# ── SPI Calculation ───────────────────────────────────────────────────────────
+# -- SPI Calculation -----------------------------------------------------------
 def compute_spi(pr_monthly: np.ndarray, scale: int,
                  calib_mask: np.ndarray) -> np.ndarray:
     """
@@ -205,7 +205,7 @@ def compute_spi(pr_monthly: np.ndarray, scale: int,
     return spi
 
 
-# ── SPEI Calculation ──────────────────────────────────────────────────────────
+# -- SPEI Calculation ----------------------------------------------------------
 def compute_spei(pr_monthly: np.ndarray, pet_monthly: np.ndarray,
                   scale: int, calib_mask: np.ndarray) -> np.ndarray:
     """
@@ -241,7 +241,7 @@ def compute_spei(pr_monthly: np.ndarray, pet_monthly: np.ndarray,
     return spei
 
 
-# ── Drought class frequency ───────────────────────────────────────────────────
+# -- Drought class frequency ---------------------------------------------------
 def drought_frequency(index_values: np.ndarray) -> dict:
     """Return % time in each drought/wet class."""
     valid = index_values[~np.isnan(index_values)]
@@ -253,7 +253,7 @@ def drought_frequency(index_values: np.ndarray) -> dict:
     return result
 
 
-# ── Build observed monthly series ─────────────────────────────────────────────
+# -- Build observed monthly series ---------------------------------------------
 def load_obs_monthly(station_excel: str) -> pd.DataFrame:
     df = pd.read_excel(OBS_XLSX, sheet_name="All_Stations", parse_dates=["date"])
     df = df[df["station_name"] == station_excel].copy()
@@ -276,10 +276,10 @@ STATION_EXCEL_MAP = {
 }
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# -- Main ----------------------------------------------------------------------
 def main():
     print("=" * 65)
-    print("Phase IV — Drought Indices (SPI-3, SPI-12, SPEI-12)")
+    print("Phase IV - Drought Indices (SPI-3, SPI-12, SPEI-12)")
     print("=" * 65)
 
     all_summaries = []
@@ -355,7 +355,7 @@ def main():
             df_out.to_csv(out_path, index=False)
             print(f"  Saved: {out_path.name}")
 
-            # ── Period-wise drought frequency ─────────────────────────────────
+            # -- Period-wise drought frequency ---------------------------------
             for period_name, (p_start, p_end) in PERIODS.items():
                 mask = (df_out["date"] >= p_start) & (df_out["date"] <= p_end)
                 period_data = df_out[mask]
@@ -372,7 +372,7 @@ def main():
                     summary.update(freq)
                     all_summaries.append(summary)
 
-            # ── Plot ──────────────────────────────────────────────────────────
+            # -- Plot ----------------------------------------------------------
             fig, axes = plt.subplots(3, 1, figsize=(16, 12), sharex=True)
             colors = {"positive": "steelblue", "negative": "firebrick"}
 
@@ -396,12 +396,12 @@ def main():
                 ax.set_ylim(-3.5, 3.5)
                 ax.grid(True, alpha=0.2)
 
-            axes[0].set_title(f"Drought Indices – {station} ({scenario.upper()})")
+            axes[0].set_title(f"Drought Indices - {station} ({scenario.upper()})")
             plt.tight_layout()
             fig.savefig(FIG_DIR / f"drought_{station}_{scenario}.png", dpi=150)
             plt.close(fig)
 
-    # ── Save summary ──────────────────────────────────────────────────────────
+    # -- Save summary ----------------------------------------------------------
     if all_summaries:
         summary_df = pd.DataFrame(all_summaries)
         summary_df.to_csv(OUT_DIR / "drought_changes_summary.csv", index=False)

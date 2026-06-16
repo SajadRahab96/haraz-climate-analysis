@@ -60,7 +60,7 @@ def main(filled_path: str, output_path: str):
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         for name in STATIONS:
             if name not in xf.sheet_names:
-                log(f"  WARNING: sheet '{name}' not found — skipping")
+                log(f"  WARNING: sheet '{name}' not found - skipping")
                 continue
             df = pd.read_excel(xf, sheet_name=name, parse_dates=["date"])
             df = df.sort_values("date").set_index("date").reindex(ref)
@@ -77,7 +77,7 @@ def main(filled_path: str, output_path: str):
                 if col in df.columns:
                     n_miss = df[col].isna().sum()
                     if n_miss > 0:
-                        log(f"  WARNING: {name} — {col} still has {n_miss} missing values!")
+                        log(f"  WARNING: {name} - {col} still has {n_miss} missing values!")
 
             provenance_summary(df, name)
 

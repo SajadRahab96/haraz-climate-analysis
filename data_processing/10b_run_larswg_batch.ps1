@@ -12,12 +12,11 @@
 #      (or use the SceExample.sce as template for each station+scenario)
 # ============================================================================
 
-$ROOT        = Split-Path $PSScriptRoot -Parent   # project root
-$LARSWG_EXE  = "$ROOT\LARSWG8x\LARSWG.exe"
-$DATA_DIR    = "$ROOT\LARS weather generator 8\Data"
-$SITEBASE    = "$ROOT\LARS weather generator 8\Sitebase"
-$OUTPUT_DIR  = "$ROOT\LARS weather generator 8\Output"
-$SCENARIO_DIR = "$ROOT\LARSWG8x\Scenarios"
+$LARSWG_EXE  = "c:\Users\Pc\Documents\Claude\Projects\ISIArticle\LARSWG8x\LARSWG.exe"
+$DATA_DIR    = "D:\MyArticle\LARS\Data"
+$SITEBASE    = "D:\MyArticle\LARS\Sitebase"
+$OUTPUT_DIR  = "D:\MyArticle\LARS\Output"
+$SCENARIO_DIR = "c:\Users\Pc\Documents\Claude\Projects\ISIArticle\LARSWG8x\Scenarios"
 
 # Ensure output directories exist
 New-Item -ItemType Directory -Force -Path $SITEBASE | Out-Null
@@ -66,5 +65,5 @@ Write-Host "     - Scenarios: SSP2-4.5 AND SSP5-8.5"
 Write-Host "     - Periods: 2021-2060 and 2061-2100"
 Write-Host "     - Output dir: $OUTPUT_DIR"
 Write-Host "  4. Copy generated .dat files to:"
-Write-Host "     $ROOT\outputs\larswg\"
+Write-Host "     c:\Users\Pc\Documents\Claude\Projects\ISIArticle\outputs\larswg\"
 Write-Host "=========================================="

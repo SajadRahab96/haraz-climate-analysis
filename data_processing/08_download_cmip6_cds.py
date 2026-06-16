@@ -48,7 +48,7 @@ import pandas as pd
 import xarray as xr
 import cdsapi
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# -- Configuration -------------------------------------------------------------
 STATIONS = {
     "Gharakhil":              {"lat": 36.487, "lon": 52.108},
     "Amol":                   {"lat": 36.470, "lon": 52.350},
@@ -101,7 +101,7 @@ def _fmt_time(seconds: float) -> str:
 
 
 def download_region(raw_dir: str) -> None:
-    """Submit CDS requests for all model × experiment × variable combinations."""
+    """Submit CDS requests for all model x experiment x variable combinations."""
     Path(raw_dir).mkdir(parents=True, exist_ok=True)
     client = cdsapi.Client()
     total  = len(MODELS_CDS) * len(EXPERIMENTS) * len(VARIABLES)

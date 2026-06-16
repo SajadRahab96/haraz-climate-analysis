@@ -5,9 +5,9 @@ Multi-source gap-filling for the three Haraz synoptic stations (2000-2020).
 
 Procedure
 ---------
-Gharakhil  : linear temporal interpolation for scattered missing values (≤3 days)
+Gharakhil  : linear temporal interpolation for scattered missing values (<=3 days)
 Sari       : structural gap 2000-2005 filled from IRIMO provincial database
-             with mean-bias correction (ΔTmax=−0.184°C, ΔTmin=−0.321°C)
+             with mean-bias correction (ΔTmax=-0.184°C, ΔTmin=-0.321°C)
              + linear interpolation for scattered missing values
 Amol       : structural gaps (year 2000 and 2018-2020) filled via MLR
              (Gharakhil + Sari as predictors; Gharakhil only for year 2000)
@@ -34,13 +34,13 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from utils.stats import ols_fit, ols_predict
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+# -- Constants -----------------------------------------------------------------
 START_DATE  = "2000-01-01"
 END_DATE    = "2020-12-31"
 TRAIN_START = "2006-01-01"
 TRAIN_END   = "2017-12-31"
 
-SARI_BIAS = {"Tmax": -0.184, "Tmin": -0.321}   # provincial DB − IRIMO portal
+SARI_BIAS = {"Tmax": -0.184, "Tmin": -0.321}   # provincial DB - IRIMO portal
 
 VARIABLES = ["Tmax", "Tmin", "Pr"]
 
@@ -59,7 +59,7 @@ def read_sheet(path: str, sheet: str) -> pd.DataFrame:
 
 
 def linear_interp(series: pd.Series, max_gap: int = 3) -> pd.Series:
-    """Linear interpolation for gaps ≤ max_gap days; leaves larger gaps as NaN."""
+    """Linear interpolation for gaps <= max_gap days; leaves larger gaps as NaN."""
     filled = series.copy()
     nan_mask = series.isna()
     nan_idx  = np.where(nan_mask)[0]

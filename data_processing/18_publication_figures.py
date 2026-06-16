@@ -27,7 +27,7 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-# ── Settings ──────────────────────────────────────────────────────────────────
+# -- Settings ------------------------------------------------------------------
 BASE   = Path(__file__).resolve().parent.parent
 OUT    = BASE / "outputs" / "figures_600dpi"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -59,9 +59,9 @@ def savefig(fig, name):
     print(f"  Saved: {path.name}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIG 2 — GCM evaluation heatmap
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# FIG 2 - GCM evaluation heatmap
+# -----------------------------------------------------------------------------
 def fig_gcm_evaluation():
     eval_dir = BASE / "outputs" / "evaluation"
     score_file = eval_dir / "cmip6_skill_scores.csv"
@@ -74,7 +74,7 @@ def fig_gcm_evaluation():
     df = pd.read_csv(score_file)
     print(f"  Fig2 columns: {list(df.columns)}")
 
-    # Pivot to model × variable mean skill_score heatmap
+    # Pivot to model x variable mean skill_score heatmap
     pivot = df.groupby(["model","variable"])["skill_score"].mean().unstack("variable")
     norm = (pivot - pivot.min()) / (pivot.max() - pivot.min() + 1e-9)
 
@@ -90,13 +90,13 @@ def fig_gcm_evaluation():
             ax.text(i, j, f"{val:.3f}", ha="center", va="center",
                     fontsize=6.5, color="black")
     plt.colorbar(im, ax=ax, label="Normalized score")
-    ax.set_title("Fig. 2 — CMIP6 GCM Skill Scores (HBCD-2020 baseline)", pad=8)
+    ax.set_title("Fig. 2 - CMIP6 GCM Skill Scores (HBCD-2020 baseline)", pad=8)
     savefig(fig, "Fig2_GCM_evaluation")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIG 3 — Bias correction validation (calibration period 2000-2014)
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# FIG 3 - Bias correction validation (calibration period 2000-2014)
+# -----------------------------------------------------------------------------
 def _load_dqm_module():
     import importlib.util
     path = BASE / "data_processing" / "11_bias_correction_dqm.py"
@@ -120,7 +120,7 @@ def fig_bias_correction():
     obs_all = pd.read_excel(obs_path, sheet_name="All_Stations", parse_dates=["date"])
     fig, axes = plt.subplots(2, 3, figsize=(11, 6), sharey="row")
     fig.suptitle(
-        "Fig. 3 — Bias Correction Validation: Observed vs. EDQM-Corrected GCM\n"
+        "Fig. 3 - Bias Correction Validation: Observed vs. EDQM-Corrected GCM\n"
         "(Monthly climatology, calibration period 2000-2014, 6-model ensemble mean)",
         y=1.01,
     )
@@ -191,13 +191,13 @@ def fig_bias_correction():
     savefig(fig, "Fig3_Bias_Correction_Validation")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIG 4 — BMA ensemble temperature projections
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# FIG 4 - BMA ensemble temperature projections
+# -----------------------------------------------------------------------------
 def fig_bma_projections():
     bma_dir = BASE / "outputs" / "bma"
     fig, axes = plt.subplots(2, 3, figsize=(13, 7), sharey="row")
-    fig.suptitle("Fig. 4 — BMA Ensemble Projections 2021-2100 (Monthly Mean Tmax and Precipitation)", y=1.01)
+    fig.suptitle("Fig. 4 - BMA Ensemble Projections 2021-2100 (Monthly Mean Tmax and Precipitation)", y=1.01)
 
     for col_i, station in enumerate(STATIONS):
         for row_i, var in enumerate(["tmax_monthly_bma", "pr_monthly_bma"]):
@@ -238,9 +238,9 @@ def fig_bma_projections():
     savefig(fig, "Fig4_BMA_Projections")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIG 5 — BiLSTM validation + future discharge
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# FIG 5 - BiLSTM validation + future discharge
+# -----------------------------------------------------------------------------
 def fig_bilstm():
     bilstm_dir = BASE / "outputs" / "bilstm"
     val_file = bilstm_dir / "validation_results.csv"
@@ -292,7 +292,7 @@ def fig_bilstm():
         if not f.exists():
             continue
         df_fut = pd.read_csv(f, parse_dates=["date"])
-        # One row per model per month — pivot to models as columns
+        # One row per model per month - pivot to models as columns
         all_series = []
         for model, grp in df_fut.groupby("model"):
             grp = grp.set_index("date")["Q_m3s"].resample("YE").mean()
@@ -308,22 +308,22 @@ def fig_bilstm():
                              color=col, alpha=0.15)
     ax2.set_xlabel("Year")
     ax2.set_ylabel("Annual Mean Discharge (m3/s)")
-    ax2.set_title("Future Discharge Projections — Karesang Station (BMA Ensemble)")
+    ax2.set_title("Future Discharge Projections - Karesang Station (BMA Ensemble)")
     ax2.legend(fontsize=7)
     ax2.set_xlim(2021, 2100)
     ax2.axvline(2060, color="gray", lw=0.8, ls="--", alpha=0.6)
 
-    fig.suptitle("Fig. 5 — BiLSTM Streamflow Model: Validation and Future Projections", y=1.01)
+    fig.suptitle("Fig. 5 - BiLSTM Streamflow Model: Validation and Future Projections", y=1.01)
     savefig(fig, "Fig5_BiLSTM_Streamflow")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIG 6 — Drought indices
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# FIG 6 - Drought indices
+# -----------------------------------------------------------------------------
 def fig_drought():
     drought_dir = BASE / "outputs" / "drought"
     fig, axes = plt.subplots(2, 3, figsize=(13, 7), sharey="row")
-    fig.suptitle("Fig. 6 — Projected Drought Indices (SPI-12 and SPEI-12) under SSP2-4.5 and SSP5-8.5", y=1.01)
+    fig.suptitle("Fig. 6 - Projected Drought Indices (SPI-12 and SPEI-12) under SSP2-4.5 and SSP5-8.5", y=1.01)
 
     index_labels = {"spi12": "SPI-12", "spei12": "SPEI-12"}
     for row_i, idx in enumerate(["spi12", "spei12"]):
@@ -358,9 +358,9 @@ def fig_drought():
     savefig(fig, "Fig6_Drought_Indices")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIG 7 — Extreme indices grouped bar chart
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# FIG 7 - Extreme indices grouped bar chart
+# -----------------------------------------------------------------------------
 def fig_extremes():
     ext = pd.read_csv(BASE / "outputs" / "extremes" / "extremes_period_changes.csv")
     obs_file = BASE / "outputs" / "extremes" / "observed_extremes_annual.csv"
@@ -401,14 +401,14 @@ def fig_extremes():
             ax.legend(fontsize=5.5, ncol=2, loc="upper left")
 
     axes_flat[5].set_visible(False)
-    fig.suptitle("Fig. 7 — Projected Changes in ETCCDI Extreme Indices\n(NT=2021-2060, LT=2061-2100 vs Obs 2000-2020)", y=1.01)
+    fig.suptitle("Fig. 7 - Projected Changes in ETCCDI Extreme Indices\n(NT=2021-2060, LT=2061-2100 vs Obs 2000-2020)", y=1.01)
     fig.tight_layout()
     savefig(fig, "Fig7_Extreme_Indices")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIG 8 — Compound hot-dry events
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# FIG 8 - Compound hot-dry events
+# -----------------------------------------------------------------------------
 def fig_compound():
     summary_file = BASE / "outputs" / "compound" / "compound_summary.csv"
     if not summary_file.exists():
@@ -423,7 +423,7 @@ def fig_compound():
 
     fig, axes = plt.subplots(1, 3, figsize=(12, 4.5))
     fig.suptitle(
-        "Fig. 8 — Compound Hot-Dry Event Frequency\n"
+        "Fig. 8 - Compound Hot-Dry Event Frequency\n"
         "(% of months; baseline 2000-2020, NT=2021-2060, LT=2061-2100)",
         y=1.02,
     )
@@ -464,34 +464,34 @@ def fig_compound():
     savefig(fig, "Fig8_Compound_Events")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # MAIN
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     print("=" * 60)
     print(f"Generating publication figures at {DPI} DPI")
     print(f"Output: {OUT}")
     print("=" * 60)
 
-    print("\nFig 2 — GCM Evaluation:")
+    print("\nFig 2 - GCM Evaluation:")
     fig_gcm_evaluation()
 
-    print("\nFig 3 — Bias Correction Validation:")
+    print("\nFig 3 - Bias Correction Validation:")
     fig_bias_correction()
 
-    print("\nFig 4 — BMA Projections:")
+    print("\nFig 4 - BMA Projections:")
     fig_bma_projections()
 
-    print("\nFig 5 — BiLSTM Streamflow:")
+    print("\nFig 5 - BiLSTM Streamflow:")
     fig_bilstm()
 
-    print("\nFig 6 — Drought Indices:")
+    print("\nFig 6 - Drought Indices:")
     fig_drought()
 
-    print("\nFig 7 — Extreme Indices:")
+    print("\nFig 7 - Extreme Indices:")
     fig_extremes()
 
-    print("\nFig 8 — Compound Events:")
+    print("\nFig 8 - Compound Events:")
     fig_compound()
 
     files = list(OUT.glob("*.png"))

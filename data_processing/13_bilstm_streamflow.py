@@ -4,13 +4,13 @@
 Bidirectional LSTM model for monthly streamflow prediction at
 Haraz-Karesang station.
 
-Architecture (v2 — autoregressive):
+Architecture (v2 - autoregressive):
   Input  -> [P_mm, Tmax, Tmin, Tavg, month_sin, month_cos, Q_prev]
              per timestep (LAG+1 = 4 timesteps)
              Q_prev at timestep t = Q(t-1) (antecedent discharge)
   Layer1 -> Bidirectional LSTM (64 units) + Dropout(0.2)
   Layer2 -> Bidirectional LSTM (32 units) + Dropout(0.2)
-  Layer3 -> Linear(16) -> ReLU -> Linear(1) — Q_m3s
+  Layer3 -> Linear(16) -> ReLU -> Linear(1) - Q_m3s
 
 Key changes vs v1:
   - Added Q(t-1) as autoregressive feature at each sequence step
@@ -48,7 +48,7 @@ except ImportError:
     TORCH_AVAILABLE = False
     print("WARNING: PyTorch not available.")
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 BASE_DIR  = Path(__file__).resolve().parent.parent
 FLOW_DIR  = BASE_DIR / "outputs" / "streamflow"
 BC_DIR    = BASE_DIR / "outputs" / "bias_corrected"
@@ -74,7 +74,7 @@ CLIM_COLS = ["P_mm_month", "Tmax_mean", "Tmin_mean", "Tavg_mean"]
 N_FEATURES = len(CLIM_COLS) + 2 + 1   # 7
 
 
-# ── Metrics ───────────────────────────────────────────────────────────────────
+# -- Metrics -------------------------------------------------------------------
 def nse(obs, sim):
     return 1 - np.sum((obs - sim)**2) / np.sum((obs - np.mean(obs))**2)
 
@@ -89,7 +89,7 @@ def rmse(obs, sim):
     return np.sqrt(np.mean((obs - sim)**2))
 
 
-# ── Feature matrix (autoregressive) ──────────────────────────────────────────
+# -- Feature matrix (autoregressive) ------------------------------------------
 def make_features(df: pd.DataFrame) -> tuple:
     """
     For each target month t, build sequence of LAG+1 timesteps.
@@ -109,7 +109,7 @@ def make_features(df: pd.DataFrame) -> tuple:
     # Start from LAG+1 so Q_prev at earliest sequence step is always available
     for i in range(LAG + 1, len(df)):
         seq = []
-        for l in range(LAG, -1, -1):   # l = LAG, LAG-1, ..., 0  →  timesteps t-LAG .. t
+        for l in range(LAG, -1, -1):   # l = LAG, LAG-1, ..., 0  ->  timesteps t-LAG .. t
             ti = i - l                   # absolute row index for this timestep
             q_prev = Q[ti - 1]           # Q one month before this timestep
             seq.append([
@@ -142,7 +142,7 @@ def normalize_y(y_train, y_val):
     return (y_train - mu) / sig, (y_val - mu) / sig, mu, sig
 
 
-# ── BiLSTM model ──────────────────────────────────────────────────────────────
+# -- BiLSTM model --------------------------------------------------------------
 class BiLSTMModel(nn.Module):
     def __init__(self, n_features: int = N_FEATURES, hidden1: int = 64, hidden2: int = 32):
         super().__init__()
@@ -163,10 +163,10 @@ class BiLSTMModel(nn.Module):
         return self.fc2(out).squeeze(-1)
 
 
-# ── Training ──────────────────────────────────────────────────────────────────
+# -- Training ------------------------------------------------------------------
 def train_model(train_csv: Path, val_csv: Path):
     print("\n" + "="*60)
-    print("Training BiLSTM Streamflow Model — v2 (autoregressive)")
+    print("Training BiLSTM Streamflow Model - v2 (autoregressive)")
     print("="*60)
 
     torch.manual_seed(SEED)
@@ -245,7 +245,7 @@ def train_model(train_csv: Path, val_csv: Path):
     model.load_state_dict(best_state)
     torch.save(best_state, OUT_DIR / "model_weights.pt")
 
-    # ── Validation metrics ────────────────────────────────────────────────────
+    # -- Validation metrics ----------------------------------------------------
     model.eval()
     with torch.no_grad():
         y_pred = model(X_va_t).numpy() * sig_y + mu_y
@@ -262,7 +262,7 @@ def train_model(train_csv: Path, val_csv: Path):
     for k, v in metrics.items():
         print(f"    {k}: {v}")
 
-    # ── Recursive validation (projection mode: predicted Q fed back) ─────────
+    # -- Recursive validation (projection mode: predicted Q fed back) ---------
     # Mirrors how the model is used for future projection, where observed
     # antecedent discharge is unavailable.
     months_full = full_df["gregorian_date"].dt.month.values
@@ -332,7 +332,7 @@ def train_model(train_csv: Path, val_csv: Path):
     return model, mu_x, sig_x, mu_y, sig_y, metrics
 
 
-# ── Future Projection (autoregressive) ───────────────────────────────────────
+# -- Future Projection (autoregressive) ---------------------------------------
 def project_future(model, mu_x, sig_x, mu_y, sig_y, full_obs_csv: Path):
     print("\n" + "="*60)
     print("Projecting Future Streamflow 2021-2100 (autoregressive)")
@@ -380,7 +380,7 @@ def project_future(model, mu_x, sig_x, mu_y, sig_y, full_obs_csv: Path):
                 basin_bc[["gregorian_date"] + CLIM_COLS]
             ]).reset_index(drop=True)
 
-            # For future rows, we don't have observed Q — use rolling Q buffer
+            # For future rows, we don't have observed Q - use rolling Q buffer
             # Initialize Q buffer with last observed values
             q_buffer = list(obs_monthly["Q_m3s"].tail(LAG + 1).values)
 
@@ -481,7 +481,7 @@ def project_future(model, mu_x, sig_x, mu_y, sig_y, full_obs_csv: Path):
         print("  Future discharge plots saved.")
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# -- Main ----------------------------------------------------------------------
 def main():
     if not TORCH_AVAILABLE:
         print("ERROR: PyTorch required.")

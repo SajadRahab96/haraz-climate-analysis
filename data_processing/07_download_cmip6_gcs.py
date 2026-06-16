@@ -69,7 +69,7 @@ import pandas as pd
 import xarray as xr
 import gcsfs
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# -- Configuration -------------------------------------------------------------
 STATIONS = {
     "Gharakhil":              {"lat": 36.487, "lon": 52.108},
     "Amol":                   {"lat": 36.470, "lon": 52.350},
@@ -96,7 +96,7 @@ VARIABLES_ALL  = ["pr", "tasmax", "tasmin", "tas"]   # tas tried separately
 EXPERIMENTS = ["historical", "ssp245", "ssp585"]
 TABLE_ID    = "day"
 
-# Time slices per experiment (string-based — works across all CMIP6 calendars).
+# Time slices per experiment (string-based - works across all CMIP6 calendars).
 TIME_RANGE = {
     "historical": ("2000", "2014"),
     "ssp245":     ("2015", "2100"),
@@ -110,7 +110,7 @@ CSV_GCS  = "cmip6/pangeo-cmip6.csv"
 CSV_HTTP = "https://cmip6.storage.googleapis.com/pangeo-cmip6.csv"   # fallback
 
 
-# ── Utility helpers ────────────────────────────────────────────────────────────
+# -- Utility helpers ------------------------------------------------------------
 
 def _fmt_size(n_bytes: float) -> str:
     """Human-readable byte size."""
@@ -154,8 +154,8 @@ def nearest_cell(ds: xr.Dataset, lat: float, lon: float) -> xr.Dataset:
 
 def convert(values: np.ndarray, var: str) -> np.ndarray:
     if var == "pr":
-        return np.clip(values * 86400.0, a_min=0, a_max=None)   # kg m⁻² s⁻¹ → mm/day
-    return values - 273.15                                       # K → °C
+        return np.clip(values * 86400.0, a_min=0, a_max=None)   # kg m⁻² s⁻¹ -> mm/day
+    return values - 273.15                                       # K -> °C
 
 
 def pick_store(df: pd.DataFrame, model: str, exp: str, var: str) -> str | None:
@@ -177,7 +177,7 @@ def pick_store(df: pd.DataFrame, model: str, exp: str, var: str) -> str | None:
     return sub.iloc[0]["zstore"]
 
 
-# ── Core download logic ────────────────────────────────────────────────────────
+# -- Core download logic --------------------------------------------------------
 
 def download_variable(
     fs: gcsfs.GCSFileSystem,
@@ -214,7 +214,7 @@ def download_variable(
             total_vals      += len(vals)
 
         ds.close()
-        # Approximate bytes: float32 × n_values × 3 stations
+        # Approximate bytes: float32 x n_values x 3 stations
         approx_bytes = total_vals * 4.0
         return station_data, approx_bytes
 
@@ -225,12 +225,12 @@ def download_variable(
 def main(output_base: str, models: list, experiments: list):
     Path(output_base).mkdir(parents=True, exist_ok=True)
 
-    # ── Load catalog ──────────────────────────────────────────────────────────
-    log("╔══════════════════════════════════════════════════════════════╗")
-    log("║  CMIP6 GCS Downloader — Haraz Watershed                     ║")
-    log("╚══════════════════════════════════════════════════════════════╝")
+    # -- Load catalog ----------------------------------------------------------
+    log("╔==============================================================╗")
+    log("║  CMIP6 GCS Downloader - Haraz Watershed                     ║")
+    log("╚==============================================================╝")
     log("")
-    log("Loading Pangeo CMIP6 catalog (may take 1–3 min over VPN) ...")
+    log("Loading Pangeo CMIP6 catalog (may take 1-3 min over VPN) ...")
     fs = gcsfs.GCSFileSystem(token="anon", access="read_only")
     try:
         with fs.open(CSV_GCS) as f:
@@ -242,44 +242,44 @@ def main(output_base: str, models: list, experiments: list):
     catalog_df["version"] = catalog_df["version"].astype(str)
     log(f"  Catalog loaded: {len(catalog_df):,} Zarr stores.\n")
 
-    # ── Build job list ─────────────────────────────────────────────────────────
+    # -- Build job list ---------------------------------------------------------
     jobs        = [(m, e) for m in models for e in experiments]
     n_jobs      = len(jobs)
     global_t0   = time.time()
     global_mb   = 0.0    # cumulative megabytes
     job_times   = []     # for ETA estimation
 
-    log(f"  Jobs: {n_jobs}  ({len(models)} models × {len(experiments)} experiments)")
+    log(f"  Jobs: {n_jobs}  ({len(models)} models x {len(experiments)} experiments)")
     log(f"  Variables per job: {VARIABLES_ALL}")
     log(f"  Stations: {list(STATIONS.keys())}")
     log("")
 
-    # ── Process jobs ──────────────────────────────────────────────────────────
+    # -- Process jobs ----------------------------------------------------------
     for job_idx, (model, exp) in enumerate(jobs, 1):
         job_t0  = time.time()
         job_mb  = 0.0
 
-        log("╔══════════════════════════════════════════════════════════════╗")
-        log(f"║  Job {job_idx:2d}/{n_jobs}  │  {model:20s} │  {exp}{'':10s}║")
-        log("╚══════════════════════════════════════════════════════════════╝")
+        log("╔==============================================================╗")
+        log(f"║  Job {job_idx:2d}/{n_jobs}  |  {model:20s} |  {exp}{'':10s}║")
+        log("╚==============================================================╝")
 
         frames      = {st: {} for st in STATIONS}   # {station: {col: values}}
         dates_ref   = {st: None for st in STATIONS}
         var_status  = {}   # {var: "ok" | "failed" | "skipped"}
         tas_downloaded = False
 
-        # ── Download core variables (pr, tasmax, tasmin) ───────────────────
+        # -- Download core variables (pr, tasmax, tasmin) -------------------
         for v_idx, var in enumerate(VARIABLES_ALL, 1):
             bar = _progress_bar(v_idx - 1, len(VARIABLES_ALL))
             log(f"  [{bar}] {v_idx-1}/{len(VARIABLES_ALL)} variables done")
-            log(f"  → {var:8s}  ⟳ downloading ...")
+            log(f"  -> {var:8s}  ⟳ downloading ...")
             t1 = time.time()
             try:
                 station_data, approx_bytes = download_variable(
                     fs, catalog_df, model, exp, var)
 
                 if station_data is None:
-                    log(f"  → {var:8s}  ✗ not in catalog  (skipped)")
+                    log(f"  -> {var:8s}  ✗ not in catalog  (skipped)")
                     var_status[var] = "not_in_catalog"
                     continue
 
@@ -297,20 +297,20 @@ def main(output_base: str, models: list, experiments: list):
                 if var == "tas":
                     tas_downloaded = True
 
-                log(f"  → {var:8s}  ✓  ~{_fmt_size(approx_bytes):>9s}  "
+                log(f"  -> {var:8s}  ✓  ~{_fmt_size(approx_bytes):>9s}  "
                     f"({_fmt_time(elapsed_v):>6s})  "
                     f"[total this job: {job_mb:.1f} MB]")
                 var_status[var] = "downloaded"
 
             except RuntimeError as e:
                 elapsed_v = time.time() - t1
-                log(f"  → {var:8s}  ✗ FAILED ({_fmt_time(elapsed_v)}): "
+                log(f"  -> {var:8s}  ✗ FAILED ({_fmt_time(elapsed_v)}): "
                     f"{str(e)[:80]}")
                 var_status[var] = "failed"
 
-        # ── Compute tas if not downloaded ──────────────────────────────────
+        # -- Compute tas if not downloaded ----------------------------------
         if not tas_downloaded:
-            log(f"  → {'tas':8s}  ⟳ computing from (tasmax + tasmin) / 2 ...")
+            log(f"  -> {'tas':8s}  ⟳ computing from (tasmax + tasmin) / 2 ...")
             computed_ok = True
             for st in STATIONS:
                 tx = frames[st].get("tasmax_C")
@@ -322,10 +322,10 @@ def main(output_base: str, models: list, experiments: list):
                 else:
                     computed_ok = False
             if computed_ok:
-                log(f"  → {'tas':8s}  ✓  computed  [tas_source = 'computed']")
+                log(f"  -> {'tas':8s}  ✓  computed  [tas_source = 'computed']")
                 var_status["tas"] = "computed"
             else:
-                log(f"  → {'tas':8s}  ✗ cannot compute (tasmax or tasmin missing)")
+                log(f"  -> {'tas':8s}  ✗ cannot compute (tasmax or tasmin missing)")
                 var_status["tas"] = "failed"
         else:
             # mark tas_source as downloaded
@@ -335,12 +335,12 @@ def main(output_base: str, models: list, experiments: list):
                     frames[st]["tas_source"] = np.array(
                         ["downloaded"] * n, dtype=object)
 
-        # ── Final progress bar for this job ────────────────────────────────
+        # -- Final progress bar for this job --------------------------------
         n_ok  = sum(1 for s in var_status.values() if s in ("downloaded", "computed"))
         bar   = _progress_bar(n_ok, len(VARIABLES_ALL))
         log(f"  [{bar}] {n_ok}/{len(VARIABLES_ALL)} variables done")
 
-        # ── Save CSVs ──────────────────────────────────────────────────────
+        # -- Save CSVs ------------------------------------------------------
         any_saved = False
         out_dir   = Path(output_base) / exp / model
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -357,7 +357,7 @@ def main(output_base: str, models: list, experiments: list):
             log(f"  💾 saved {fpath.name}  ({len(df_out):,} days)")
             any_saved = True
 
-        # ── Timing & ETA ──────────────────────────────────────────────────
+        # -- Timing & ETA --------------------------------------------------
         job_elapsed = time.time() - job_t0
         job_times.append(job_elapsed)
         total_elapsed = time.time() - global_t0
@@ -365,31 +365,31 @@ def main(output_base: str, models: list, experiments: list):
         remaining     = (n_jobs - job_idx) * avg_job_time
 
         log("")
-        log(f"  ┌─ Job summary ──────────────────────────────────────────")
-        log(f"  │  Data this job   : ~{job_mb:.1f} MB")
-        log(f"  │  Total downloaded: ~{global_mb:.1f} MB")
-        log(f"  │  Job elapsed     : {_fmt_time(job_elapsed)}")
-        log(f"  │  Total elapsed   : {_fmt_time(total_elapsed)}")
-        log(f"  │  Est. remaining  : ~{_fmt_time(remaining)}")
-        log(f"  └────────────────────────────────────────────────────────")
+        log(f"  ┌- Job summary ------------------------------------------")
+        log(f"  |  Data this job   : ~{job_mb:.1f} MB")
+        log(f"  |  Total downloaded: ~{global_mb:.1f} MB")
+        log(f"  |  Job elapsed     : {_fmt_time(job_elapsed)}")
+        log(f"  |  Total elapsed   : {_fmt_time(total_elapsed)}")
+        log(f"  |  Est. remaining  : ~{_fmt_time(remaining)}")
+        log(f"  └--------------------------------------------------------")
         log("")
 
-    # ── Final summary ──────────────────────────────────────────────────────────
+    # -- Final summary ----------------------------------------------------------
     total_elapsed = time.time() - global_t0
-    log("╔══════════════════════════════════════════════════════════════╗")
+    log("╔==============================================================╗")
     log("║  DOWNLOAD COMPLETE                                           ║")
     log(f"║  Total jobs      : {n_jobs:3d}                                     ║")
     log(f"║  Total data      : ~{global_mb:6.1f} MB                             ║")
     log(f"║  Total time      : {_fmt_time(total_elapsed):>10s}                          ║")
     log(f"║  Output dir      : {os.path.abspath(output_base)[:38]}  ║")
-    log("╚══════════════════════════════════════════════════════════════╝")
+    log("╚==============================================================╝")
 
 
-# ── Entry point ────────────────────────────────────────────────────────────────
+# -- Entry point ----------------------------------------------------------------
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(
-        description="Stream CMIP6 from Google Cloud (Pangeo Zarr) — Haraz Watershed",
+        description="Stream CMIP6 from Google Cloud (Pangeo Zarr) - Haraz Watershed",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument(

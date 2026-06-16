@@ -1,7 +1,7 @@
 """
 04_download_cmip6.py
 ====================
-CMIP6 retrieval via ESGF (direct) — REFERENCE / LAST-RESORT route.
+CMIP6 retrieval via ESGF (direct) - REFERENCE / LAST-RESORT route.
 
 WARNING: ESGF data nodes are frequently offline or rate-limited.
 Use 07_download_cmip6_gcs.py (Google Cloud, recommended) instead.
@@ -88,7 +88,7 @@ def convert(values, var):
 
 def main(output_base):
     Path(output_base).mkdir(parents=True, exist_ok=True)
-    print("NOTE: ESGF route — nodes may be unavailable. "
+    print("NOTE: ESGF route - nodes may be unavailable. "
           "Use 07_download_cmip6_gcs.py for reliable access.", flush=True)
 
     for model in MODELS:
