@@ -41,7 +41,7 @@ Variables : pr (mm/day), tasmax (°C), tasmin (°C), tas (°C)
 Periods   : historical 2000-2014  |  ssp245 & ssp585 2015-2100
 
 Reference:
-    Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
+    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
     Pangeo / ESGF Cloud Data Working Group. CMIP6 Google Cloud Zarr archive.
 
 Repository: https://github.com/SajadRahab96/haraz-climate-analysis

@@ -27,7 +27,7 @@ Stations  : Gharakhil, Amol, Sari (Dasht-e-Naz Airport)
 Models    : MPI-ESM1-2-HR, GFDL-ESM4, UKESM1-0-LL, IPSL-CM6A-LR, MRI-ESM2-0, CanESM5
 
 Reference:
-    Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
+    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
     Copernicus Climate Change Service (C3S) Climate Data Store, CMIP6 projections.
 
 Repository: https://github.com/SajadRahab96/haraz-climate-analysis

@@ -11,7 +11,7 @@ Produces a single clean Excel workbook with:
   - Complete daily coverage: 2000-01-01 to 2020-12-31
 
 Reference:
-    Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
+    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
     Repository: https://github.com/SajadRahab96/haraz-climate-analysis
 
 Usage:

@@ -4,6 +4,7 @@ Python code for the CMIP6-based hydroclimatic projection study of the Haraz wate
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20713519.svg)](https://doi.org/10.5281/zenodo.20713519)
 
 ## Overview
 
@@ -106,7 +107,8 @@ Source-portal cross-validation over 2006-2017 gives r = 0.996 for Tmax and Tmin,
 @misc{rahabrajaei_haraz_2025,
   author    = {Rahab-Rajaei, Sajad and Motiee, Homayoun},
   title     = {haraz-climate-analysis: code for CMIP6 hydroclimatic projection of the Haraz watershed, northern Iran},
-  year      = {2025},
+  year      = {2026},
+  doi       = {10.5281/zenodo.20713519},
   publisher = {GitHub},
   url       = {https://github.com/SajadRahab96/haraz-climate-analysis}
 }

@@ -11,7 +11,7 @@ Variables : pr, tasmax, tasmin (tas not available in NEX-GDDP)
 Resolution: 0.25° x 0.25° (regridded from raw GCMs)
 
 Reference:
-    Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
+    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
     Thrasher B. et al. (2022). NASA Global Daily Downscaled Projections, CMIP6 (NEX-GDDP-CMIP6).
     Repository: https://github.com/SajadRahab96/haraz-climate-analysis
 

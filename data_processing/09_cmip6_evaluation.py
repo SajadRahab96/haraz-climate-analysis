@@ -17,7 +17,7 @@ Metrics reported (per Section 3.5):
     RMSE, MAE, PBIAS, NSE, KGE, r - Taylor diagram visualization
 
 Reference:
-    Rahab-Rajaei, S., Motiee, H. (2025). Hydroclimatic Projections Under
+    Rahab-Rajaei, S., Motiee, H. (2026). Hydroclimatic Projections Under
     CMIP6 SSP Scenarios in the Haraz Watershed, Northern Iran:
     A Hybrid BiLSTM-BMA Framework. [Target: ISI Q1 Journal]
 """

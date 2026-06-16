@@ -11,7 +11,7 @@ Models    : MPI-ESM1-2-HR, GFDL-ESM4, UKESM1-0-LL, IPSL-CM6A-LR, MRI-ESM2-0, Can
 Experiments: historical (2000-2014), ssp245 (2015-2100), ssp585 (2015-2100)
 
 Reference:
-    Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
+    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
     Repository: https://github.com/SajadRahab96/haraz-climate-analysis
 
 Requirements:

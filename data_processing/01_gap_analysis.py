@@ -9,7 +9,7 @@ Identifies three categories of data absence:
   (iii) Potentially erroneous values - Tmax < Tmin, Pr < 0
 
 Reference:
-    Rahab-Rajaei S., Motiee H. (2025). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
+    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
     Repository: https://github.com/SajadRahab96/haraz-climate-analysis
 
 Usage:
