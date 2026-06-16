@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "haraz-climate-analysis: a reproducible CMIP6 hydroclimatic projection pipeline for the Haraz watershed, northern Iran"
+abstract: "Python pipeline for CMIP6 GCM evaluation, LARS-WG 8 / Detrended Quantile Mapping downscaling, EM-based Bayesian Model Averaging, autoregressive BiLSTM streamflow projection, and drought / ETCCDI extreme / compound hot-dry index computation for the Haraz watershed, northern Iran."
+type: software
+authors:
+  - family-names: "Rahab-Rajaei"
+    given-names: "Sajad"
+    affiliation: "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+  - family-names: "Motiee"
+    given-names: "Homayoun"
+    affiliation: "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+version: "1.0.0"
+date-released: "2025-07-01"
+license: MIT
+repository-code: "https://github.com/SajadRahab96/haraz-climate-analysis"
+keywords:
+  - CMIP6
+  - climate change
+  - LARS-WG
+  - BiLSTM
+  - Bayesian Model Averaging
+  - drought
+  - compound extremes
+  - Haraz watershed
+  - Iran

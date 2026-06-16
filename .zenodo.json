@@ -1,0 +1,30 @@
+{
+  "title": "haraz-climate-analysis: a reproducible CMIP6 hydroclimatic projection pipeline for the Haraz watershed, northern Iran",
+  "description": "Python pipeline accompanying Rahab-Rajaei & Motiee (2025), 'Hydroclimatic Projections Under CMIP6 SSP Scenarios in the Haraz Watershed, Northern Iran: A Hybrid BiLSTM-BMA Framework with Compound Extreme Event Analysis.' The repository reconstructs a gap-filled daily observational baseline (2000-2020), evaluates six CMIP6 GCMs, downscales them with LARS-WG 8 and Detrended Quantile Mapping (DQM), combines them by Expectation-Maximization Bayesian Model Averaging (BMA), projects streamflow with an autoregressive bidirectional LSTM, and computes SPI/SPEI, ETCCDI extreme, and compound hot-dry indices under SSP2-4.5 and SSP5-8.5.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Rahab-Rajaei, Sajad",
+      "affiliation": "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+    },
+    {
+      "name": "Motiee, Homayoun",
+      "affiliation": "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+    }
+  ],
+  "keywords": [
+    "CMIP6",
+    "climate change",
+    "LARS-WG",
+    "statistical downscaling",
+    "BiLSTM",
+    "Bayesian Model Averaging",
+    "drought indices",
+    "compound extremes",
+    "streamflow projection",
+    "Haraz watershed",
+    "Iran"
+  ]
+}
