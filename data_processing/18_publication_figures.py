@@ -62,35 +62,110 @@ def savefig(fig, name):
 # -----------------------------------------------------------------------------
 # FIG 2 - GCM evaluation heatmap
 # -----------------------------------------------------------------------------
+MODELS_ORDER = ["IPSL-CM6A-LR", "MPI-ESM1-2-HR", "CanESM5",
+                "UKESM1-0-LL", "GFDL-ESM4", "MRI-ESM2-0"]
+
+
+def _taylor_panel(ax, sub, title, model_color):
+    """Draw a single quarter Taylor diagram (correlation vs. variance ratio)."""
+    rmax = 1.7
+    ax.set_thetamin(0)
+    ax.set_thetamax(90)
+    ax.set_theta_zero_location("E")
+    ax.set_theta_direction(1)
+    ax.set_ylim(0, rmax)
+
+    # Angular gridlines = correlation
+    rlines = [0.0, 0.2, 0.4, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99]
+    ax.set_xticks([np.arccos(r) for r in rlines])
+    ax.set_xticklabels([f"{r:g}" for r in rlines])
+    ax.text(np.deg2rad(46), rmax * 1.22, "Correlation",
+            ha="center", va="center", fontsize=8, rotation=-46)
+
+    # Radial gridlines = standard-deviation ratio
+    ax.set_yticks([0.5, 1.0, 1.5])
+    ax.set_rlabel_position(83)
+    ax.tick_params(axis="y", labelsize=6)
+
+    # Reference variability circle (sigma ratio = 1) and reference point
+    th = np.linspace(0, np.pi / 2, 100)
+    ax.plot(th, np.ones_like(th), ls="--", color="0.45", lw=0.7, zorder=1)
+    ax.plot(0, 1.0, marker="*", color="k", ms=14, zorder=6)
+
+    # Centered-RMS-difference contours (circles centred on the reference point)
+    for E in [0.25, 0.5, 0.75, 1.0, 1.25]:
+        phi = np.linspace(0, np.pi, 240)
+        x = 1.0 + E * np.cos(phi)
+        y = E * np.sin(phi)
+        rr = np.sqrt(x ** 2 + y ** 2)
+        tt = np.arctan2(y, x)
+        keep = (tt >= 0) & (tt <= np.pi / 2) & (rr <= rmax)
+        ax.plot(tt[keep], rr[keep], ls=":", color="0.7", lw=0.6, zorder=1)
+
+    # Model markers
+    for m in MODELS_ORDER:
+        if m not in sub.index:
+            continue
+        r = float(np.clip(sub.loc[m, "corr"], -1, 1))
+        a = float(sub.loc[m, "alpha"])
+        ax.plot(np.arccos(r), a, "o", color=model_color[m],
+                ms=9, mec="k", mew=0.6, zorder=5)
+    ax.set_title(title, fontsize=9, pad=16)
+
+
 def fig_gcm_evaluation():
     eval_dir = BASE / "outputs" / "evaluation"
     score_file = eval_dir / "cmip6_skill_scores.csv"
-    if not score_file.exists():
-        score_file = eval_dir / "gcm_skill_scores.csv"
-    if not score_file.exists():
-        print("  SKIP Fig2: skill scores csv not found")
+    metrics_file = eval_dir / "cmip6_evaluation_metrics.csv"
+    if not score_file.exists() or not metrics_file.exists():
+        print("  SKIP Fig2: evaluation csv not found (run 09_cmip6_evaluation.py)")
         return
 
-    df = pd.read_csv(score_file)
-    print(f"  Fig2 columns: {list(df.columns)}")
+    skill = pd.read_csv(score_file)
+    metr = pd.read_csv(metrics_file)
+    cmap_models = plt.cm.tab10(np.linspace(0, 1, 10))
+    model_color = {m: cmap_models[i] for i, m in enumerate(MODELS_ORDER)}
 
-    # Pivot to model x variable mean skill_score heatmap
-    pivot = df.groupby(["model","variable"])["skill_score"].mean().unstack("variable")
-    norm = (pivot - pivot.min()) / (pivot.max() - pivot.min() + 1e-9)
+    fig = plt.figure(figsize=(10, 9))
+    gs = gridspec.GridSpec(2, 2, height_ratios=[1.15, 0.95],
+                           hspace=0.38, wspace=0.22)
+    axa = fig.add_subplot(gs[0, 0], projection="polar")
+    axb = fig.add_subplot(gs[0, 1], projection="polar")
+    axc = fig.add_subplot(gs[1, :])
 
-    fig, ax = plt.subplots(figsize=(8, 3.5))
-    im = ax.imshow(norm.values.T, aspect="auto", cmap="RdYlGn", vmin=0, vmax=1)
-    ax.set_xticks(range(len(pivot.index)))
-    ax.set_xticklabels(pivot.index, rotation=30, ha="right")
-    ax.set_yticks(range(len(pivot.columns)))
-    ax.set_yticklabels(pivot.columns)
-    for i in range(len(pivot.index)):
-        for j in range(len(pivot.columns)):
-            val = pivot.values[i, j]
-            ax.text(i, j, f"{val:.3f}", ha="center", va="center",
-                    fontsize=6.5, color="black")
-    plt.colorbar(im, ax=ax, label="Normalized score")
-    ax.set_title("Fig. 2 - CMIP6 GCM Skill Scores (vs. observed 2000-2014 baseline)", pad=8)
+    for ax, var, lab in [(axa, "tmax", "(a) Taylor diagram: Tmax"),
+                         (axb, "pr", "(b) Taylor diagram: Precipitation")]:
+        sub = metr[metr["variable"] == var].groupby("model")[["corr", "alpha"]].mean()
+        _taylor_panel(ax, sub, lab, model_color)
+
+    handles = [Line2D([0], [0], marker="o", color="w", markerfacecolor=model_color[m],
+                      markeredgecolor="k", ms=8, label=m) for m in MODELS_ORDER]
+    handles.append(Line2D([0], [0], marker="*", color="w", markerfacecolor="k",
+                          markeredgecolor="k", ms=12, label="Observed (reference)"))
+    axa.legend(handles=handles, loc="upper center", bbox_to_anchor=(1.12, -0.14),
+               ncol=4, fontsize=7.5, frameon=False, columnspacing=1.2)
+
+    # Panel (c): composite skill-score heatmap (variable x model)
+    pivot = (skill.groupby(["variable", "model"])["skill_score"].mean()
+             .unstack("model").reindex(index=["tmax", "tmin", "pr"], columns=MODELS_ORDER))
+    im = axc.imshow(pivot.values, aspect="auto", cmap="RdYlGn", vmin=0, vmax=1)
+    axc.set_xticks(range(len(MODELS_ORDER)))
+    axc.set_xticklabels(MODELS_ORDER, rotation=22, ha="right")
+    axc.set_yticks(range(3))
+    axc.set_yticklabels(["Tmax", "Tmin", "Precip"])
+    for i in range(3):
+        for j in range(len(MODELS_ORDER)):
+            v = pivot.values[i, j]
+            if not np.isnan(v):
+                axc.text(j, i, f"{v:.3f}", ha="center", va="center", fontsize=7.5)
+    for s in axc.spines.values():
+        s.set_visible(True)
+    cb = plt.colorbar(im, ax=axc, fraction=0.026, pad=0.015)
+    cb.set_label("Composite skill score", fontsize=8)
+    axc.set_title("(c) Composite skill scores by model and variable", fontsize=9, pad=8)
+
+    fig.suptitle("CMIP6 GCM historical evaluation vs. observed baseline (2000–2014, n ≈ 180)",
+                 fontsize=10.5, y=0.965)
     savefig(fig, "Fig2_GCM_evaluation")
 
 

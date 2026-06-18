@@ -4,7 +4,7 @@
 ======================
 CMIP6 GCM Historical Evaluation - Haraz Watershed Study
 
-Evaluates six CMIP6 models against the HBCD-2020 observational baseline
+Evaluates six CMIP6 models against the gap-filled observational baseline
 (2000-2014) at three synoptic stations (Amol, Gharakhil, Sari).
 
 Evaluation basis: MONTHLY TIME SERIES (n ~ 180 month-pairs per
@@ -19,7 +19,7 @@ Metrics reported (per Section 3.5):
 Reference:
     Rahab-Rajaei, S., Motiee, H. (2026). Hydroclimatic Projections Under
     CMIP6 SSP Scenarios in the Haraz Watershed, Northern Iran:
-    A Hybrid BiLSTM-BMA Framework. [Target: ISI Q1 Journal]
+    A Hybrid BiLSTM-BMA Framework.
 """
 
 import pandas as pd
@@ -62,7 +62,7 @@ END_YEAR   = 2014
 # -----------------------------------------------------------------------------
 
 def load_observed_data() -> pd.DataFrame:
-    """Load HBCD-2020 gap-filled dataset with standardised station names."""
+    """Load the gap-filled observational dataset with standardised station names."""
     print(f"Loading observed data: {OBS_FILE}")
     obs = pd.read_excel(OBS_FILE, sheet_name="All_Stations")
     obs["date"] = pd.to_datetime(obs["date"])
@@ -225,7 +225,8 @@ def compute_metrics(obs: np.ndarray, sim: np.ndarray) -> dict:
 
 def evaluate_all_models() -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Evaluate all CMIP6 models against HBCD-2020 on MONTHLY TIME SERIES.
+    Evaluate all CMIP6 models against the gap-filled observational baseline
+    on MONTHLY TIME SERIES.
 
     Observations and simulations are aggregated to calendar-month means
     within each year (Jan 2000 ... Dec 2014), yielding n ~ 180 paired data
@@ -472,7 +473,7 @@ def generate_time_series_plots(data_df: pd.DataFrame, output_dir: Path) -> None:
                     continue
                 ax = axes[idx]
                 ax.plot(vd["date"], vd["obs"], "k-",
-                        alpha=0.85, linewidth=1.6, label="Observed (HBCD-2020)")
+                        alpha=0.85, linewidth=1.6, label="Observed")
                 ax.plot(vd["date"], vd["sim"], "r--",
                         alpha=0.80, linewidth=1.3, label=f"{model} (CMIP6 historical)")
                 ax.set_ylabel(var_label, fontsize=11)
@@ -481,7 +482,7 @@ def generate_time_series_plots(data_df: pd.DataFrame, output_dir: Path) -> None:
                     ax.legend(loc="upper right", fontsize=10)
 
             plt.suptitle(
-                f"Monthly Validation: {model} vs HBCD-2020 - {station} "
+                f"Monthly Validation: {model} vs gap-filled observations - {station} "
                 f"({START_YEAR}\u2013{END_YEAR})",
                 fontsize=13, y=1.01,
             )
