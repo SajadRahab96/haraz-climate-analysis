@@ -90,7 +90,7 @@ def fig_gcm_evaluation():
             ax.text(i, j, f"{val:.3f}", ha="center", va="center",
                     fontsize=6.5, color="black")
     plt.colorbar(im, ax=ax, label="Normalized score")
-    ax.set_title("Fig. 2 - CMIP6 GCM Skill Scores (HBCD-2020 baseline)", pad=8)
+    ax.set_title("Fig. 2 - CMIP6 GCM Skill Scores (vs. observed 2000-2014 baseline)", pad=8)
     savefig(fig, "Fig2_GCM_evaluation")
 
 
@@ -120,7 +120,7 @@ def fig_bias_correction():
     obs_all = pd.read_excel(obs_path, sheet_name="All_Stations", parse_dates=["date"])
     fig, axes = plt.subplots(2, 3, figsize=(11, 6), sharey="row")
     fig.suptitle(
-        "Fig. 3 - Bias Correction Validation: Observed vs. EDQM-Corrected GCM\n"
+        "Fig. 3 - Bias Correction Validation: Observed vs. Bias-Corrected GCM\n"
         "(Monthly climatology, calibration period 2000-2014, 6-model ensemble mean)",
         y=1.01,
     )
@@ -167,7 +167,7 @@ def fig_bias_correction():
         ax = axes[0, col_i]
         ax.plot(months, obs_tmax_m.reindex(months), "k-o", ms=4, lw=1.5, label="Obs")
         ax.plot(months, raw_tmax_m.reindex(months), "gray", ls=":", ms=3, lw=1.0, label="Raw GCM")
-        ax.plot(months, bc_tmax_m.reindex(months), "r--s", ms=3.5, lw=1.2, label="EDQM BC")
+        ax.plot(months, bc_tmax_m.reindex(months), "r--s", ms=3.5, lw=1.2, label="Bias-corrected")
         ax.set_xticks(months)
         ax.set_xticklabels(month_labels)
         ax.set_title(station)
@@ -179,7 +179,7 @@ def fig_bias_correction():
         ax = axes[1, col_i]
         ax.bar([m - 0.25 for m in months], obs_pr_m.reindex(months), color="#5b9bd5", alpha=0.7, width=0.22, label="Obs")
         ax.bar(months, raw_pr_m.reindex(months), color="#bdbdbd", alpha=0.7, width=0.22, label="Raw GCM")
-        ax.bar([m + 0.25 for m in months], bc_pr_m.reindex(months), color="#ed7d31", alpha=0.7, width=0.22, label="EDQM BC")
+        ax.bar([m + 0.25 for m in months], bc_pr_m.reindex(months), color="#ed7d31", alpha=0.7, width=0.22, label="Bias-corrected")
         ax.set_xticks(months)
         ax.set_xticklabels(month_labels)
         if col_i == 0:
