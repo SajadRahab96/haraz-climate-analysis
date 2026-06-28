@@ -1,7 +1,7 @@
 """
 10_prepare_larswg_site.py
 =========================
-Converts HBCD-2020 (ClimateData_GapFilled_2000_2020.xlsx) into LARS-WG 8
+Converts 2000-2020 (ClimateData_GapFilled_2000_2020.xlsx) into LARS-WG 8
 site input files (.dat and .st) for each of the three synoptic stations.
 
 Outputs (written to <project>/LARS weather generator 8/Data/):
