@@ -10,13 +10,15 @@
 #   2. Runs Site Analysis for each station (writes .stx / .tst / .wgx)
 #   3. You still need to run Scenario Generation manually in the GUI
 #      (or use the SceExample.sce as template for each station+scenario)
+#   4. For reRun you should use your LARSWG directories.
+#   5. For understanding LARSWG8, I highly recommend you to read user's manual.
 # ============================================================================
 
-$LARSWG_EXE  = "c:\Users\Pc\Documents\Claude\Projects\ISIArticle\LARSWG8x\LARSWG.exe"
-$DATA_DIR    = "D:\MyArticle\LARS\Data"
-$SITEBASE    = "D:\MyArticle\LARS\Sitebase"
-$OUTPUT_DIR  = "D:\MyArticle\LARS\Output"
-$SCENARIO_DIR = "c:\Users\Pc\Documents\Claude\Projects\ISIArticle\LARSWG8x\Scenarios"
+
+$DATA_DIR    = ""
+$SITEBASE    = ""
+$OUTPUT_DIR  = ""
+$SCENARIO_DIR = ""
 
 # Ensure output directories exist
 New-Item -ItemType Directory -Force -Path $SITEBASE | Out-Null
@@ -65,5 +67,5 @@ Write-Host "     - Scenarios: SSP2-4.5 AND SSP5-8.5"
 Write-Host "     - Periods: 2021-2060 and 2061-2100"
 Write-Host "     - Output dir: $OUTPUT_DIR"
 Write-Host "  4. Copy generated .dat files to:"
-Write-Host "     c:\Users\Pc\Documents\Claude\Projects\ISIArticle\outputs\larswg\"
+Write-Host "     #enter directory"
 Write-Host "=========================================="
