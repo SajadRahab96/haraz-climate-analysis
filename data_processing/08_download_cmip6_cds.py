@@ -15,7 +15,7 @@ One-time setup (NEW CDS infrastructure, since Feb 2025)
 2. Copy your Personal Access Token from your CDS profile.
 3. Create  ~/.cdsapirc  with:
        url: https://cds.climate.copernicus.eu/api
-       key: <YOUR-PERSONAL-ACCESS-TOKEN>
+       key: #مراقب باشید کلید را کامیت نکنید
 4. pip install "cdsapi>=0.7" xarray netCDF4 pandas numpy
 
 tas handling
