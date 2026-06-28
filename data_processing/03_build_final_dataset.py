@@ -1,7 +1,7 @@
 """
 03_build_final_dataset.py
 =========================
-Assemble the final Haraz Basin Climate Dataset (HBCD-2020) from the gap-filled
+Assemble the final Haraz Basin Climate Dataset (2000-2020) from the gap-filled
 output of 02_gap_filling.py.
 
 Produces a single clean Excel workbook with:
