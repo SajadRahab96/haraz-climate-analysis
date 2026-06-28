@@ -4,7 +4,7 @@
 Generate all publication-quality figures at 600 DPI for the manuscript.
 
 Figures produced:
-  Fig 1  - Study area map (schematic, from station metadata)
+  Fig 1  - Study area map (made with ArcGIS Pro 2026 and using Sajad Rahab Rajaei Msc Thesis (2022) GIS datas)
   Fig 2  - GCM evaluation heatmap (skill scores)
   Fig 3  - Bias correction validation (obs vs BC, 3 stations)
   Fig 4  - BMA ensemble temperature & precipitation projections (3 stations x 2 scenarios)
