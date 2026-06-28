@@ -1,9 +1,9 @@
 """
 11_bias_correction_dqm.py
 =========================
-Applies Equidistant Quantile Mapping (EDQM / Detrended QM) bias correction
+Applies DQM bias correction
 to CMIP6 raw GCM outputs (all 6 models, SSP2-4.5 and SSP5-8.5) using the
-HBCD-2020 observational dataset as the reference.
+2000-2020 observational dataset as the reference.
 
 Method: Detrended Quantile Mapping (Cannon et al., 2015; Li et al., 2010)
   - Calibration period: 2000-2014 (overlapping obs and GCM historical)
