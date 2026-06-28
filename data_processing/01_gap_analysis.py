@@ -1,7 +1,7 @@
 """
 01_gap_analysis.py
 ==================
-Systematic gap detection across all three synoptic stations in HBCD-2020.
+Systematic gap detection across all three synoptic stations in 2000-2020.
 
 Identifies three categories of data absence:
   (i)   Structural gaps - consecutive periods with no IRIMO portal records
@@ -9,7 +9,7 @@ Identifies three categories of data absence:
   (iii) Potentially erroneous values - Tmax < Tmin, Pr < 0
 
 Reference:
-    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed. [ISI Q1]
+    Rahab-Rajaei S., Motiee H. (2026). Hydroclimatic Projections, Haraz Watershed.
     Repository: https://github.com/SajadRahab96/haraz-climate-analysis
 
 Usage:
