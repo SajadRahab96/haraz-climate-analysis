@@ -4,7 +4,7 @@
 Generate all publication-quality figures at 600 DPI for the manuscript.
 
 Figures produced:
-  Fig 1  - Study area map (made with ArcGIS Pro 2026 and using Sajad Rahab Rajaei Msc Thesis (2022) GIS datas)
+  Fig 1  - Study area map (schematic, from station metadata)
   Fig 2  - GCM evaluation heatmap (skill scores)
   Fig 3  - Bias correction validation (obs vs BC, 3 stations)
   Fig 4  - BMA ensemble temperature & precipitation projections (3 stations x 2 scenarios)
@@ -37,6 +37,7 @@ FMT     = "png"
 PALETTE = {"ssp245": "#2196F3", "ssp585": "#F44336"}
 STATIONS = ["Amol", "Gharakhil", "Sari"]
 SCENARIOS = ["ssp245", "ssp585"]
+SCEN_LAB  = {"ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
 
 plt.rcParams.update({
     "font.family":      "DejaVu Sans",
@@ -269,10 +270,56 @@ def fig_bias_correction():
 # -----------------------------------------------------------------------------
 # FIG 4 - BMA ensemble temperature projections
 # -----------------------------------------------------------------------------
+SEASONS = {"DJF": (12, 1, 2), "MAM": (3, 4, 5), "JJA": (6, 7, 8), "SON": (9, 10, 11)}
+
+
+def _seasonal_changes():
+    """Pooled station-year seasonal changes vs the observed 2000-2020 baseline.
+
+    Returns dict[(season, scenario, period)] -> (list dTmax degC, list dP %).
+    """
+    bma_dir = BASE / "outputs" / "bma"
+    obs = pd.read_excel(BASE / "ClimateData_GapFilled_2000_2020.xlsx",
+                        sheet_name="All_Stations", parse_dates=["date"])
+    obs = obs.rename(columns={"rrr24": "pr"})
+    smap = {"Amol": "Amol", "Gharakhil": "Gharakhil",
+            "Sari": "Sari (Dasht-E-Naz Airport)"}
+    month2season = {m: s for s, ms in SEASONS.items() for m in ms}
+
+    out = {}
+    for stn in STATIONS:
+        o = obs[obs["station_name"] == smap[stn]].copy()
+        o["season"] = o["date"].dt.month.map(month2season)
+        base_t = o.groupby("season")["tmax"].mean()
+        om = o.set_index("date").resample("MS").agg(pr=("pr", "sum"))
+        om["season"] = om.index.month.map(month2season)
+        base_p = om.groupby("season")["pr"].mean()
+
+        for scen in SCENARIOS:
+            f = bma_dir / f"bma_climate_{stn}_{scen}_monthly.csv"
+            if not f.exists():
+                continue
+            df = pd.read_csv(f, parse_dates=["date"], index_col="date")
+            df["season"] = df.index.month.map(month2season)
+            df["year"] = df.index.year
+            g = df.groupby(["season", "year"]).agg(
+                t=("tmax_monthly_bma", "mean"), p=("pr_monthly_bma", "mean"))
+            for (season, year), r in g.iterrows():
+                period = "NT" if year <= 2060 else "LT"
+                key = (season, scen, period)
+                out.setdefault(key, ([], []))
+                out[key][0].append(r["t"] - base_t[season])
+                out[key][1].append(100.0 * (r["p"] - base_p[season]) / base_p[season])
+    return out
+
+
 def fig_bma_projections():
     bma_dir = BASE / "outputs" / "bma"
-    fig, axes = plt.subplots(2, 3, figsize=(13, 7), sharey="row")
-    fig.suptitle("Fig. 4 - BMA Ensemble Projections 2021-2100 (Monthly Mean Tmax and Precipitation)", y=1.01)
+    fig = plt.figure(figsize=(13, 10.5))
+    gs = fig.add_gridspec(3, 6, height_ratios=[1, 1, 0.95], hspace=0.42, wspace=0.55)
+    axes = np.array([[fig.add_subplot(gs[r, 2 * c:2 * c + 2]) for c in range(3)]
+                     for r in range(2)])
+    fig.suptitle("Fig. 4 - BMA Ensemble Projections 2021-2100 (Monthly Mean Tmax and Precipitation)", y=0.99)
 
     for col_i, station in enumerate(STATIONS):
         for row_i, var in enumerate(["tmax_monthly_bma", "pr_monthly_bma"]):
@@ -290,7 +337,7 @@ def fig_bma_projections():
                 col = PALETTE[scen]
                 ax.plot(annual.index.year, annual.values, color=col, alpha=0.25, lw=0.6)
                 ax.plot(smooth.index.year, smooth.values, color=col, lw=1.8,
-                        label=scen.upper())
+                        label=SCEN_LAB[scen])
                 # Uncertainty band
                 lower_col = var.replace("_bma", "_lower90")
                 upper_col = var.replace("_bma", "_upper90")
@@ -309,7 +356,33 @@ def fig_bma_projections():
 
     for ax in axes[1]:
         ax.set_xlabel("Year")
-    fig.tight_layout()
+
+    # -- Bottom row: seasonal change boxplots (pooled across stations) ---------
+    chg = _seasonal_changes()
+    ax_t = fig.add_subplot(gs[2, 0:3])
+    ax_p = fig.add_subplot(gs[2, 3:6])
+    groups = [("ssp245", "NT"), ("ssp245", "LT"), ("ssp585", "NT"), ("ssp585", "LT")]
+    shades = {("ssp245", "NT"): "#90CAF9", ("ssp245", "LT"): "#1565C0",
+              ("ssp585", "NT"): "#EF9A9A", ("ssp585", "LT"): "#B71C1C"}
+    width, offs = 0.17, [-0.30, -0.10, 0.10, 0.30]
+    for ax, vi, ylab in [(ax_t, 0, "dTmax vs baseline (deg C)"),
+                         (ax_p, 1, "dPrecip vs baseline (%)")]:
+        for gi, (scen, per) in enumerate(groups):
+            data = [chg.get((s, scen, per), ([], []))[vi] for s in SEASONS]
+            pos = [i + offs[gi] for i in range(len(SEASONS))]
+            bp = ax.boxplot(data, positions=pos, widths=width, patch_artist=True,
+                            showfliers=False, medianprops=dict(color="black", lw=1.1))
+            for b in bp["boxes"]:
+                b.set_facecolor(shades[(scen, per)]); b.set_alpha(0.85)
+        ax.set_xticks(range(len(SEASONS)))
+        ax.set_xticklabels(list(SEASONS))
+        ax.axhline(0, color="gray", lw=0.8, ls=":")
+        ax.set_ylabel(ylab)
+        ax.set_title("(g) Seasonal Tmax change" if vi == 0 else "(h) Seasonal precipitation change",
+                     fontsize=9)
+    handles = [Patch(facecolor=shades[g], label=f"{SCEN_LAB[g[0]]} {g[1]}") for g in groups]
+    ax_p.legend(handles=handles, fontsize=7, ncol=2, loc="upper right", framealpha=0.9)
+
     savefig(fig, "Fig4_BMA_Projections")
 
 
@@ -378,7 +451,7 @@ def fig_bilstm():
             lower_ = ensemble.quantile(0.05, axis=1)
             upper_ = ensemble.quantile(0.95, axis=1)
             col = PALETTE[scen]
-            ax2.plot(mean_.index.year, mean_.values, color=col, lw=1.8, label=scen.upper())
+            ax2.plot(mean_.index.year, mean_.values, color=col, lw=1.8, label=SCEN_LAB[scen])
             ax2.fill_between(mean_.index.year, lower_.values, upper_.values,
                              color=col, alpha=0.15)
     ax2.set_xlabel("Year")
@@ -416,7 +489,7 @@ def fig_drought():
                 col = PALETTE[scen]
                 ax.plot(series.index.year, series.values, color=col, alpha=0.2, lw=0.5)
                 ax.plot(smooth.index.year, smooth.values, color=col, lw=1.8,
-                        label=scen.upper())
+                        label=SCEN_LAB[scen])
             ax.axhline(0, color="black", lw=0.8, ls="--", alpha=0.5)
             ax.axhline(-1, color="orange", lw=0.7, ls=":", alpha=0.7)
             ax.axhline(-2, color="red", lw=0.7, ls=":", alpha=0.7)
@@ -465,7 +538,7 @@ def fig_extremes():
                         for s in STATIONS]
                 off = offsets[period][scen]
                 col = colors_period[period][scen]
-                lbl = f"{scen.upper()} {'NT' if period=='near_term' else 'LT'}"
+                lbl = f"{SCEN_LAB[scen]} {'NT' if period=='near_term' else 'LT'}"
                 ax.bar(x + off, vals, w, label=lbl, color=col, alpha=0.9)
 
         ax.set_xticks(x)
@@ -540,6 +613,73 @@ def fig_compound():
 
 
 # -----------------------------------------------------------------------------
+# FIG 9 - Workflow of the integrated framework
+# -----------------------------------------------------------------------------
+def fig_workflow():
+    from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+    C_IN   = "#dbe9f6"   # inputs
+    C_EVAL = "#fff2cc"   # evaluation
+    C_DS   = "#e2efda"   # downscaling
+    C_BMA  = "#fce4d6"   # ensemble
+    C_OUT  = "#ede7f6"   # impacts
+    EDGE   = "#4d4d4d"
+
+    fig, ax = plt.subplots(figsize=(8.6, 10.2))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 14)
+    ax.axis("off")
+
+    def box(x, y, w, h, text, fc, fs=8.2, bold=False):
+        ax.add_patch(FancyBboxPatch((x, y), w, h,
+                     boxstyle="round,pad=0.12", fc=fc, ec=EDGE, lw=1.0, zorder=2))
+        ax.text(x + w / 2, y + h / 2, text, ha="center", va="center",
+                fontsize=fs, fontweight="bold" if bold else "normal", zorder=3)
+
+    def arrow(x1, y1, x2, y2):
+        ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2),
+                     arrowstyle="-|>", mutation_scale=13, lw=1.2,
+                     color=EDGE, zorder=1))
+
+    # Row 1: inputs
+    box(0.4, 12.5, 4.3, 1.1, "CMIP6 GCMs (n = 6)\nhistorical 2000-2014; SSP2-4.5, SSP5-8.5",
+        C_IN, bold=True)
+    box(5.3, 12.5, 4.3, 1.1, "Observed baseline (2000-2020)\n3 stations, gap-filled daily series",
+        C_IN, bold=True)
+    # Row 2: evaluation
+    box(2.5, 10.6, 5.0, 1.2, "Historical evaluation (monthly, n = 180)\n"
+        "RMSE, MAE, PBIAS, NSE, KGE, r; Taylor diagrams\n"
+        "composite skill ranking (Table 5)", C_EVAL)
+    arrow(2.55, 12.5, 4.0, 11.8)
+    arrow(7.45, 12.5, 6.0, 11.8)
+    # Row 3: two-track downscaling
+    box(0.4, 8.5, 4.4, 1.4, "Track A: LARS-WG 8\n4 library GCMs (CanESM5, GFDL,\nMRI, UKESM); 20-yr time slices", C_DS)
+    box(5.2, 8.5, 4.4, 1.4, "Track B: DQM\n2 non-library, top-skill GCMs\n(IPSL-CM6A-LR, MPI-ESM1-2-HR)", C_DS)
+    arrow(4.0, 10.6, 2.8, 9.9)
+    arrow(6.0, 10.6, 7.2, 9.9)
+    # Row 4: station series
+    box(2.5, 6.9, 5.0, 0.9, "Station-scale daily series, 2021-2100\n(3 stations, 6 GCMs, 2 SSPs)", C_DS)
+    arrow(2.6, 8.5, 4.2, 7.8)
+    arrow(7.4, 8.5, 5.8, 7.8)
+    # Row 5: BMA
+    box(2.5, 5.2, 5.0, 1.1, "Bayesian Model Averaging (EM)\nposterior weights + 90% predictive intervals\n(Raftery et al., 2005)", C_BMA, bold=True)
+    arrow(5.0, 6.9, 5.0, 6.3)
+    # Row 6: impacts (two branches)
+    box(0.4, 3.2, 4.4, 1.3, "Autoregressive BiLSTM\nmonthly discharge at Karesang\n(one-step and recursive modes)", C_OUT)
+    box(5.2, 3.2, 4.4, 1.3, "Drought: SPI-3/12, SPEI-12\nETCCDI extreme indices\ncompound hot-dry events", C_OUT)
+    arrow(4.2, 5.2, 2.8, 4.5)
+    arrow(5.8, 5.2, 7.2, 4.5)
+    # Row 7: assessment
+    box(2.5, 1.3, 5.0, 1.1, "Future assessment\nnear-term (2021-2060) vs long-term (2061-2100)\nchange signals + uncertainty", "#f2f2f2", bold=True)
+    arrow(2.6, 3.2, 4.2, 2.4)
+    arrow(7.4, 3.2, 5.8, 2.4)
+
+    ax.set_title("Workflow of the integrated downscaling-BMA-BiLSTM framework",
+                 fontsize=10.5, fontweight="bold", pad=10)
+    savefig(fig, "Fig9_Workflow")
+
+
+# -----------------------------------------------------------------------------
 # MAIN
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -568,6 +708,9 @@ if __name__ == "__main__":
 
     print("\nFig 8 - Compound Events:")
     fig_compound()
+
+    print("\nFig 9 - Workflow:")
+    fig_workflow()
 
     files = list(OUT.glob("*.png"))
     print(f"\nDone. {len(files)} figures saved in {OUT}")
