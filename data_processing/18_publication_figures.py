@@ -185,7 +185,12 @@ def _load_dqm_module():
 def fig_bias_correction():
     obs_path = BASE / "ClimateData_GapFilled_2000_2020.xlsx"
     stn_map = {"Amol": "Amol", "Gharakhil": "Gharakhil", "Sari": "Sari (Dasht-E-Naz Airport)"}
-    models = ["CanESM5", "GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL"]
+    # Validate the DQM track only: in the production two-track pipeline DQM is
+    # applied to the two non-library models; the four library models are
+    # handled by LARS-WG, which is anchored to the observed climatology by
+    # construction (applying DQM to all six would show the drizzle inflation
+    # quantified by the ablation in 31_ablation_downscaling.py).
+    models = ["IPSL-CM6A-LR", "MPI-ESM1-2-HR"]
 
     try:
         dqm = _load_dqm_module()
@@ -196,8 +201,8 @@ def fig_bias_correction():
     obs_all = pd.read_excel(obs_path, sheet_name="All_Stations", parse_dates=["date"])
     fig, axes = plt.subplots(2, 3, figsize=(11, 6), sharey="row")
     fig.suptitle(
-        "Fig. 3 - Bias Correction Validation: Observed vs. Bias-Corrected GCM\n"
-        "(Monthly climatology, calibration period 2000-2014, 6-model ensemble mean)",
+        "Fig. 3 - Bias Correction Validation, DQM track: Observed vs. Bias-Corrected GCM\n"
+        "(Monthly climatology, calibration period 2000-2014; mean of IPSL-CM6A-LR and MPI-ESM1-2-HR)",
         y=1.01,
     )
 
