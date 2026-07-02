@@ -670,7 +670,7 @@ def fig_workflow():
     box(2.5, 5.2, 5.0, 1.1, "Bayesian Model Averaging (EM)\nposterior weights + 90% predictive intervals\n(Raftery et al., 2005)", C_BMA, bold=True)
     arrow(5.0, 6.9, 5.0, 6.3)
     # Row 6: impacts (two branches)
-    box(0.4, 3.2, 4.4, 1.3, "Autoregressive BiLSTM\nmonthly discharge at Karesang\n(one-step and recursive modes)", C_OUT)
+    box(0.4, 3.2, 4.4, 1.3, "Autoregressive BiLSTM\nmonthly discharge at Karesang\n+ 9-member structural deep ensemble\n(BiLSTM, LSTM, BiGRU x 3 seeds)", C_OUT, fs=7.6)
     box(5.2, 3.2, 4.4, 1.3, "Drought: SPI-3/12, SPEI-12\nETCCDI extreme indices\ncompound hot-dry events", C_OUT)
     arrow(4.2, 5.2, 2.8, 4.5)
     arrow(5.8, 5.2, 7.2, 4.5)
