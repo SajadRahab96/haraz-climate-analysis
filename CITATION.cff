@@ -12,9 +12,9 @@ authors:
     given-names: "Homayoun"
     affiliation: "Department of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
     orcid: "https://orcid.org/0000-0002-1052-8090"
-version: "1.0.0"
-doi: "10.5281/zenodo.20713519"
-date-released: "2026-06-16"
+version: "1.1.0"
+doi: "10.5281/zenodo.21906564"
+date-released: "2026-08-12"
 license: MIT
 repository-code: "https://github.com/SajadRahab96/haraz-climate-analysis"
 keywords:

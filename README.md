@@ -5,7 +5,7 @@ data-scarce mountainous basins, demonstrated end-to-end on the Haraz basin, nort
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20713519.svg)](https://doi.org/10.5281/zenodo.20713519)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20713518.svg)](https://doi.org/10.5281/zenodo.20713518)
 
 ## Overview
 
@@ -125,7 +125,9 @@ Large and raw data are not tracked here (see `.gitignore`). Sources:
 - CMIP6: freely available via ESGF or the Pangeo Google Cloud archive (scripts 04-08)
 
 The gap-filled observational baseline and the bias-corrected projections are archived on
-Zenodo: https://doi.org/10.5281/zenodo.20713519
+Zenodo: https://doi.org/10.5281/zenodo.20713518 (concept DOI, always resolves to the latest
+version). The snapshot accompanying the manuscript is v1.1.0,
+https://doi.org/10.5281/zenodo.21906564
 
 ## Gap-filling summary
 
@@ -146,7 +148,8 @@ r = 0.60 for daily precipitation.
   title     = {haraz-climate-analysis: code for the integrated downscaling--BMA--BiLSTM
                framework for hydroclimatic and compound-extreme projection},
   year      = {2026},
-  doi       = {10.5281/zenodo.20713519},
+  version   = {v1.1.0},
+  doi       = {10.5281/zenodo.21906564},
   publisher = {Zenodo},
   url       = {https://github.com/SajadRahab96/haraz-climate-analysis}
 }
