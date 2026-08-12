@@ -1,6 +1,7 @@
-# haraz-climate-analysis
+# Integrated Downscaling–BMA–BiLSTM Framework
 
-Python code for the CMIP6-based hydroclimatic projection study of the Haraz watershed, northern Iran.
+Reproducible Python pipeline for hydroclimatic and compound-extreme projection in
+data-scarce mountainous basins, demonstrated end-to-end on the Haraz basin, northern Iran.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -8,20 +9,44 @@ Python code for the CMIP6-based hydroclimatic projection study of the Haraz wate
 
 ## Overview
 
-This repository holds the analysis code for the paper:
+This repository holds the analysis code for the manuscript:
 
-> Rahab-Rajaei, S. and Motiee, H. (2025). Hydroclimatic Projections Under CMIP6 SSP Scenarios in the Haraz Watershed, Northern Iran: A Hybrid BiLSTM-BMA Framework with Compound Extreme Event Analysis.
+> Rahab-Rajaei S, Motiee H (2026) An Integrated Downscaling–BMA–BiLSTM Framework for
+> Hydroclimatic and Compound-Extreme Projection in Data-Scarce Mountainous Basins.
+
+The manuscript is being prepared for journal submission; the journal reference and DOI
+will be added here on acceptance.
+
+The framework addresses two recurring limitations of regional CMIP6 impact studies:
+stochastic weather-generator libraries cover only a subset of CMIP6 models, which can
+exclude the most skilful GCMs from the downscaled ensemble, and multi-model uncertainty
+is often reduced to ad hoc skill weighting. Structural uncertainty is therefore treated
+explicitly at two levels: Expectation-Maximization Bayesian Model Averaging across six
+CMIP6 GCMs, and an equal-weight nine-member multi-architecture deep ensemble across the
+hydrological component. The Haraz basin is the demonstration case, not the object of the
+study, and the pipeline is written to transfer to other data-scarce basins.
 
 The workflow runs from raw daily station records to projected hydroclimatic indices:
 
 1. Quality control and gap analysis of the daily climate records.
-2. Multi-source gap-filling (bias-corrected merging of IRIMO portal and provincial data, plus MLR infilling from neighbouring stations), producing a complete daily baseline for 2000-2020.
-3. Evaluation of six CMIP6 GCMs (CanESM5, GFDL-ESM4, IPSL-CM6A-LR, MPI-ESM1-2-HR, MRI-ESM2-0, UKESM1-0-LL) against the observed baseline with RMSE, MAE, PBIAS, NSE, KGE and r, plus Taylor diagrams.
-4. Statistical downscaling: LARS-WG 8 for the four models in its scenario library, and Detrended Quantile Mapping (DQM) applied directly to the two models that are not in the library.
-5. Bayesian Model Averaging with weights estimated by Expectation-Maximization (Raftery et al., 2005).
-6. Streamflow projection with an autoregressive bidirectional LSTM trained on the Karesang record.
-7. Drought (SPI, SPEI with Hargreaves PET), ETCCDI precipitation and temperature extremes, and compound hot-dry events.
-8. Manuscript figures at 600 dpi.
+2. Multi-source gap-filling (bias-corrected merging of IRIMO portal and provincial data,
+   plus MLR infilling from neighbouring stations), producing a complete daily baseline
+   for 2000-2020.
+3. Evaluation of six CMIP6 GCMs (CanESM5, GFDL-ESM4, IPSL-CM6A-LR, MPI-ESM1-2-HR,
+   MRI-ESM2-0, UKESM1-0-LL) against the observed baseline with RMSE, MAE, PBIAS, NSE,
+   KGE and r, plus Taylor diagrams.
+4. Two-track statistical downscaling: LARS-WG 8 for the four models in its scenario
+   library, and Detrended Quantile Mapping (DQM) applied directly to the two models that
+   are not in the library.
+5. Bayesian Model Averaging with weights estimated by Expectation-Maximization
+   (Raftery et al., 2005), each member linearly calibrated before the EM step.
+6. Streamflow projection with an autoregressive bidirectional LSTM trained on the
+   Karesang record, plus a nine-member deep ensemble (BiLSTM, LSTM, BiGRU x three seeds).
+7. Drought (SPI, SPEI with Hargreaves PET), ETCCDI precipitation and temperature
+   extremes, and compound hot-dry events.
+8. Sensitivity and ablation experiments supporting every methodological choice
+   (scripts 29-34).
+9. Manuscript figures at 600 dpi.
 
 ## Study area
 
@@ -58,16 +83,24 @@ haraz-climate-analysis/
     16_extreme_indices.py          ETCCDI extreme indices
     17_compound_extremes.py        Compound hot-dry events
     18_publication_figures.py      600-dpi manuscript figures
-    27_fig1_study_area.py          Study-area map (Figure 1)
+    29_ensemble_sensitivity.py     Two-track inclusion test; EM-BMA vs skill weighting
+    30_baseline_models.py          Climatology, persistence, MLR and RF baselines
+    31_ablation_downscaling.py     Downscaling-route ablation (two-track vs all-DQM)
+    32_bilstm_robustness.py        Training length, architectures, bootstrap CIs
+    33_deep_ensemble.py            Nine-member multi-architecture deep ensemble
+    34_weighting_sensitivity.py    EM-BMA vs equal vs skill-normalised weights
   utils/stats.py                   OLS regression and metrics (numpy only)
   docs/DATA_RETRIEVAL.md           CMIP6 retrieval notes
   requirements.txt
+  CITATION.cff
   LICENSE
   README.md
 ```
 
-Scripts are numbered in the intended order of execution (01 to 18). Paths are
-resolved relative to the repository root.
+Scripts 01 to 18 are numbered in the intended order of execution and reproduce the main
+results; 29 to 34 are the sensitivity, ablation and robustness experiments and can be run
+in any order once 18 has completed. All of them write to separate output directories and
+never overwrite the production results. Paths are resolved relative to the repository root.
 
 ## Installation
 
@@ -77,8 +110,11 @@ cd haraz-climate-analysis
 pip install -r requirements.txt
 ```
 
-The BiLSTM step (`13_bilstm_streamflow.py`) also needs PyTorch (`pip install torch`).
-A dependency-free MLP fallback (`13b`) is included for testing the pipeline.
+The BiLSTM steps (`13_bilstm_streamflow.py`, `32`, `33`) also need PyTorch
+(`pip install torch`). A dependency-free MLP fallback (`13b`) is included for testing the
+pipeline. Note that CPU PyTorch runs are not bit-reproducible between machines, so metrics
+may drift by a few hundredths; the values reported in the manuscript are those in the
+committed output CSVs.
 
 ## Data
 
@@ -88,8 +124,8 @@ Large and raw data are not tracked here (see `.gitignore`). Sources:
 - Iran Regional Water Management Organization (IRWMO): streamflow records
 - CMIP6: freely available via ESGF or the Pangeo Google Cloud archive (scripts 04-08)
 
-The processed baseline and bias-corrected projections are available on request and
-will be archived on Zenodo with a DOI on publication.
+The gap-filled observational baseline and the bias-corrected projections are archived on
+Zenodo: https://doi.org/10.5281/zenodo.20713519
 
 ## Gap-filling summary
 
@@ -99,17 +135,19 @@ will be archived on Zenodo with a DOI on publication.
 | Sari | 2000-2005 | provincial DB + mean-bias correction (Tmax -0.184 C, Tmin -0.321 C) |
 | Amol | 2000, 2018-2020 | MLR from Gharakhil (and Sari); R2 = 0.98 (Tmax/Tmin), 0.38-0.39 (precip) |
 
-Source-portal cross-validation over 2006-2017 gives r = 0.996 for Tmax and Tmin, and r = 0.60 for daily precipitation.
+Source-portal cross-validation over 2006-2017 gives r = 0.996 for Tmax and Tmin, and
+r = 0.60 for daily precipitation.
 
 ## Citation
 
 ```bibtex
-@misc{rahabrajaei_haraz_2025,
+@software{rahabrajaei_haraz_2026,
   author    = {Rahab-Rajaei, Sajad and Motiee, Homayoun},
-  title     = {haraz-climate-analysis: code for CMIP6 hydroclimatic projection of the Haraz watershed, northern Iran},
+  title     = {haraz-climate-analysis: code for the integrated downscaling--BMA--BiLSTM
+               framework for hydroclimatic and compound-extreme projection},
   year      = {2026},
   doi       = {10.5281/zenodo.20713519},
-  publisher = {GitHub},
+  publisher = {Zenodo},
   url       = {https://github.com/SajadRahab96/haraz-climate-analysis}
 }
 ```

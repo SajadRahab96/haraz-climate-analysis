@@ -1,15 +1,17 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
-title: "haraz-climate-analysis: a reproducible CMIP6 hydroclimatic projection pipeline for the Haraz watershed, northern Iran"
-abstract: "Python pipeline for CMIP6 GCM evaluation, LARS-WG 8 / Detrended Quantile Mapping downscaling, EM-based Bayesian Model Averaging, autoregressive BiLSTM streamflow projection, and drought / ETCCDI extreme / compound hot-dry index computation for the Haraz watershed, northern Iran."
+title: "haraz-climate-analysis: a reproducible pipeline for the integrated downscaling-BMA-BiLSTM framework for hydroclimatic and compound-extreme projection in data-scarce mountainous basins"
+abstract: "Python pipeline implementing an integrated framework for hydroclimatic and compound-extreme projection in data-scarce mountainous basins: CMIP6 GCM evaluation, two-track statistical downscaling (LARS-WG 8 for library models, Detrended Quantile Mapping for non-library models), EM-based Bayesian Model Averaging, autoregressive BiLSTM streamflow projection with a nine-member multi-architecture deep ensemble, drought / ETCCDI extreme / compound hot-dry index computation, and the sensitivity, ablation and bootstrap experiments supporting each methodological choice. Demonstrated on the Haraz basin, northern Iran."
 type: software
 authors:
   - family-names: "Rahab-Rajaei"
     given-names: "Sajad"
-    affiliation: "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+    affiliation: "Department of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+    orcid: "https://orcid.org/0009-0008-9666-160X"
   - family-names: "Motiee"
     given-names: "Homayoun"
-    affiliation: "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+    affiliation: "Department of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+    orcid: "https://orcid.org/0000-0002-1052-8090"
 version: "1.0.0"
 doi: "10.5281/zenodo.20713519"
 date-released: "2026-06-16"
@@ -17,11 +19,15 @@ license: MIT
 repository-code: "https://github.com/SajadRahab96/haraz-climate-analysis"
 keywords:
   - CMIP6
-  - climate change
+  - climate change impact assessment
   - LARS-WG
+  - statistical downscaling
   - BiLSTM
+  - deep ensemble
   - Bayesian Model Averaging
+  - uncertainty quantification
   - drought
   - compound extremes
+  - data-scarce basins
   - Haraz watershed
   - Iran

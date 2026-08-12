@@ -1,29 +1,33 @@
 {
-  "title": "haraz-climate-analysis: a reproducible CMIP6 hydroclimatic projection pipeline for the Haraz watershed, northern Iran",
-  "description": "Python pipeline accompanying Rahab-Rajaei & Motiee (2025), 'Hydroclimatic Projections Under CMIP6 SSP Scenarios in the Haraz Watershed, Northern Iran: A Hybrid BiLSTM-BMA Framework with Compound Extreme Event Analysis.' The repository reconstructs a gap-filled daily observational baseline (2000-2020), evaluates six CMIP6 GCMs, downscales them with LARS-WG 8 and Detrended Quantile Mapping (DQM), combines them by Expectation-Maximization Bayesian Model Averaging (BMA), projects streamflow with an autoregressive bidirectional LSTM, and computes SPI/SPEI, ETCCDI extreme, and compound hot-dry indices under SSP2-4.5 and SSP5-8.5.",
+  "title": "haraz-climate-analysis: a reproducible pipeline for the integrated downscaling-BMA-BiLSTM framework for hydroclimatic and compound-extreme projection in data-scarce mountainous basins",
+  "description": "Python pipeline accompanying Rahab-Rajaei & Motiee (2026), 'An Integrated Downscaling-BMA-BiLSTM Framework for Hydroclimatic and Compound-Extreme Projection in Data-Scarce Mountainous Basins.' The framework treats structural uncertainty at two levels: Expectation-Maximization Bayesian Model Averaging (BMA) across six CMIP6 GCMs, and an equal-weight nine-member multi-architecture deep ensemble across the hydrological component. The repository reconstructs a gap-filled daily observational baseline (2000-2020), evaluates six CMIP6 GCMs, downscales them along two tracks (LARS-WG 8 for library models, Detrended Quantile Mapping for non-library models), combines them by EM-based BMA, projects streamflow with an autoregressive bidirectional LSTM and a deep ensemble, computes SPI/SPEI, ETCCDI extreme and compound hot-dry indices under SSP2-4.5 and SSP5-8.5, and includes the sensitivity, ablation and bootstrap experiments that support each methodological choice. The Haraz basin, northern Iran, is the demonstration case.",
   "upload_type": "software",
   "access_right": "open",
   "license": "MIT",
   "creators": [
     {
       "name": "Rahab-Rajaei, Sajad",
-      "affiliation": "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+      "affiliation": "Department of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
     },
     {
       "name": "Motiee, Homayoun",
-      "affiliation": "Faculty of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
+      "affiliation": "Department of Civil, Water and Environmental Engineering, Shahid Beheshti University, Tehran, Iran"
     }
   ],
   "keywords": [
     "CMIP6",
-    "climate change",
+    "climate change impact assessment",
     "LARS-WG",
     "statistical downscaling",
+    "quantile mapping",
     "BiLSTM",
+    "deep ensemble",
     "Bayesian Model Averaging",
+    "uncertainty quantification",
     "drought indices",
     "compound extremes",
     "streamflow projection",
+    "data-scarce basins",
     "Haraz watershed",
     "Iran"
   ],
