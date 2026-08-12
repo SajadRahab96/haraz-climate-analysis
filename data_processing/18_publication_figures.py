@@ -39,6 +39,22 @@ STATIONS = ["Amol", "Gharakhil", "Sari"]
 SCENARIOS = ["ssp245", "ssp585"]
 SCEN_LAB  = {"ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
 
+# Springer/SERRA artwork rule: "Do not include titles or captions within your
+# illustrations." Set SUPTITLES = False to omit all in-figure titles; captions
+# are supplied in the manuscript text instead.
+SUPTITLES = False
+
+
+def _suptitle(fig, text, **kw):
+    if SUPTITLES:
+        fig.suptitle(text, **kw)
+
+
+def _axtitle(ax, text, **kw):
+    if SUPTITLES:
+        ax.set_title(text, **kw)
+
+
 plt.rcParams.update({
     "font.family":      "DejaVu Sans",
     "font.size":        8,
@@ -165,7 +181,7 @@ def fig_gcm_evaluation():
     cb.set_label("Composite skill score", fontsize=8)
     axc.set_title("(c) Composite skill scores by model and variable", fontsize=9, pad=8)
 
-    fig.suptitle("CMIP6 GCM historical evaluation vs. observed baseline (2000–2014, n ≈ 180)",
+    _suptitle(fig, "CMIP6 GCM historical evaluation vs. observed baseline (2000–2014, n ≈ 180)",
                  fontsize=10.5, y=0.965)
     savefig(fig, "Fig2_GCM_evaluation")
 
@@ -200,7 +216,7 @@ def fig_bias_correction():
 
     obs_all = pd.read_excel(obs_path, sheet_name="All_Stations", parse_dates=["date"])
     fig, axes = plt.subplots(2, 3, figsize=(11, 6), sharey="row")
-    fig.suptitle(
+    _suptitle(fig, 
         "Fig. 3 - Bias Correction Validation, DQM track: Observed vs. Bias-Corrected GCM\n"
         "(Monthly climatology, calibration period 2000-2014; mean of IPSL-CM6A-LR and MPI-ESM1-2-HR)",
         y=1.01,
@@ -324,7 +340,7 @@ def fig_bma_projections():
     gs = fig.add_gridspec(3, 6, height_ratios=[1, 1, 0.95], hspace=0.42, wspace=0.55)
     axes = np.array([[fig.add_subplot(gs[r, 2 * c:2 * c + 2]) for c in range(3)]
                      for r in range(2)])
-    fig.suptitle("Fig. 4 - BMA Ensemble Projections 2021-2100 (Monthly Mean Tmax and Precipitation)", y=0.99)
+    _suptitle(fig, "Fig. 4 - BMA Ensemble Projections 2021-2100 (Monthly Mean Tmax and Precipitation)", y=0.99)
 
     for col_i, station in enumerate(STATIONS):
         for row_i, var in enumerate(["tmax_monthly_bma", "pr_monthly_bma"]):
@@ -466,7 +482,7 @@ def fig_bilstm():
     ax2.set_xlim(2021, 2100)
     ax2.axvline(2060, color="gray", lw=0.8, ls="--", alpha=0.6)
 
-    fig.suptitle("Fig. 5 - BiLSTM Streamflow Model: Validation and Future Projections", y=1.01)
+    _suptitle(fig, "Fig. 5 - BiLSTM Streamflow Model: Validation and Future Projections", y=1.01)
     savefig(fig, "Fig5_BiLSTM_Streamflow")
 
 
@@ -476,7 +492,7 @@ def fig_bilstm():
 def fig_drought():
     drought_dir = BASE / "outputs" / "drought"
     fig, axes = plt.subplots(2, 3, figsize=(13, 7), sharey="row")
-    fig.suptitle("Fig. 6 - Projected Drought Indices (SPI-12 and SPEI-12) under SSP2-4.5 and SSP5-8.5", y=1.01)
+    _suptitle(fig, "Fig. 6 - Projected Drought Indices (SPI-12 and SPEI-12) under SSP2-4.5 and SSP5-8.5", y=1.01)
 
     index_labels = {"spi12": "SPI-12", "spei12": "SPEI-12"}
     for row_i, idx in enumerate(["spi12", "spei12"]):
@@ -554,7 +570,7 @@ def fig_extremes():
             ax.legend(fontsize=5.5, ncol=2, loc="upper left")
 
     axes_flat[5].set_visible(False)
-    fig.suptitle("Fig. 7 - Projected Changes in ETCCDI Extreme Indices\n(NT=2021-2060, LT=2061-2100 vs Obs 2000-2020)", y=1.01)
+    _suptitle(fig, "Fig. 7 - Projected Changes in ETCCDI Extreme Indices\n(NT=2021-2060, LT=2061-2100 vs Obs 2000-2020)", y=1.01)
     fig.tight_layout()
     savefig(fig, "Fig7_Extreme_Indices")
 
@@ -575,7 +591,7 @@ def fig_compound():
         return float(row["freq_pct"].iloc[0]) if not row.empty else np.nan
 
     fig, axes = plt.subplots(1, 3, figsize=(12, 4.5))
-    fig.suptitle(
+    _suptitle(fig, 
         "Fig. 8 - Compound Hot-Dry Event Frequency\n"
         "(% of months; baseline 2000-2020, NT=2021-2060, LT=2061-2100)",
         y=1.02,
@@ -679,7 +695,7 @@ def fig_workflow():
     arrow(2.6, 3.2, 4.2, 2.4)
     arrow(7.4, 3.2, 5.8, 2.4)
 
-    ax.set_title("Workflow of the integrated downscaling-BMA-BiLSTM framework",
+    _axtitle(ax, "Workflow of the integrated downscaling-BMA-BiLSTM framework",
                  fontsize=10.5, fontweight="bold", pad=10)
     savefig(fig, "Fig9_Workflow")
 

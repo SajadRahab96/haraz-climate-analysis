@@ -13,7 +13,7 @@ Method:
   SPEI: Same as SPI but applied to (P - PET) water balance
         Fit Log-Logistic distribution (Vicente-Serrano et al., 2010)
 
-Baseline for fitting:  2000-2020 (HBCD-2020 observed)
+Baseline for fitting:  2000-2020 (2000-2020 observed)
 Application periods:   2021-2060 (near-term) and 2061-2100 (long-term)
 
 Outputs:

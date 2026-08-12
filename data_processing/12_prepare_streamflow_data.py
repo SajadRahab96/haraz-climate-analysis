@@ -4,7 +4,7 @@
 Prepares the streamflow dataset by:
   1. Reading Karesang monthly discharge from KareSang.xlsx
   2. Converting Solar Hijri dates to Gregorian
-  3. Merging with HBCD-2020 monthly climate aggregates
+  3. Merging with 2000-2020 monthly climate aggregates
   4. Splitting into train (2000-2012) / validation (2013-2016) sets
   5. Saving clean datasets for BiLSTM training
 
@@ -116,7 +116,7 @@ def expand_karesang(df_raw: pd.DataFrame) -> pd.DataFrame:
 
 def aggregate_obs_monthly(obs_excel: Path) -> pd.DataFrame:
     """
-    Aggregate HBCD-2020 daily data to monthly means/sums for all 3 stations.
+    Aggregate 2000-2020 daily data to monthly means/sums for all 3 stations.
     Returns a single DataFrame with basin-average climate variables.
     """
     df = pd.read_excel(obs_excel, sheet_name="All_Stations", parse_dates=["date"])
@@ -163,7 +163,7 @@ def main():
           f"{flow_monthly['gregorian_date'].max().date()}")
 
     # -- Load climate observations ---------------------------------------------
-    print("\nAggregating HBCD-2020 to monthly ...")
+    print("\nAggregating 2000-2020 to monthly ...")
     clim_monthly = aggregate_obs_monthly(OBS_XLSX)
     print(f"  Monthly climate records: {len(clim_monthly):,}")
 
@@ -234,7 +234,7 @@ def main():
     axes[1].bar(study["gregorian_date"], study["P_mm_month"], color="steelblue",
                 width=20, alpha=0.7, label="Basin-avg Precipitation")
     axes[1].set_ylabel("Precipitation (mm/month)")
-    axes[1].set_title("Basin-Average Monthly Precipitation (HBCD-2020)")
+    axes[1].set_title("Basin-Average Monthly Precipitation (2000-2020)")
     axes[1].legend()
     axes[1].grid(True, alpha=0.3)
 

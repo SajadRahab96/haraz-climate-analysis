@@ -156,7 +156,7 @@ def dqm_precipitation(obs_calib: np.ndarray, gcm_calib: np.ndarray,
 # -- Data Loaders --------------------------------------------------------------
 
 def load_obs(station_excel_name: str) -> pd.DataFrame:
-    """Load HBCD-2020 for one station, return daily DataFrame."""
+    """Load the gap-filled observational baseline for one station, return daily DataFrame."""
     df = pd.read_excel(OBS_EXCEL, sheet_name="All_Stations", parse_dates=["date"])
     df = df[df["station_name"] == station_excel_name].copy()
     df = df.set_index("date").sort_index()

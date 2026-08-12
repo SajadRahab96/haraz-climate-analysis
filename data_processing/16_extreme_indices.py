@@ -201,7 +201,7 @@ def bma_extreme_summary(station: str, scenario: str, weights_dict: dict,
                         obs_tmax_90: float, obs_tmin_10: float) -> pd.DataFrame:
     """
     Compute BMA-weighted annual extremes across all models.
-    Uses observed calibration percentiles (HBCD-2020) as reference thresholds,
+    Uses observed calibration percentiles (gap-filled baseline) as reference thresholds,
     since BC future files start from 2015 and have no historical overlap.
     """
     all_annual = {}

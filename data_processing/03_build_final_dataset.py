@@ -17,7 +17,7 @@ Reference:
 Usage:
     python data_processing/03_build_final_dataset.py \
         --filled  data/ClimateData_GapFilled_2000_2020.xlsx \
-        --output  data/HBCD_2020_Final.xlsx
+        --output  data/ClimateData_Final_2000_2020.xlsx
 """
 
 import argparse
@@ -103,16 +103,16 @@ def main(filled_path: str, output_path: str):
         summary_df = pd.DataFrame(summary_rows)
         summary_df.to_excel(writer, sheet_name="Summary", index=False)
 
-    log(f"\nHBCD-2020 saved to: {output_path}")
+    log(f"\nFinal dataset saved to: {output_path}")
     log("\n" + summary_df.to_string(index=False))
-    log("\nAll done. HBCD-2020 is ready for LARS-WG 8 and BiLSTM training.")
+    log("\nAll done. The dataset is ready for LARS-WG 8 and BiLSTM training.")
 
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description="Assemble HBCD-2020 final dataset")
+    p = argparse.ArgumentParser(description="Assemble the final gap-filled dataset")
     p.add_argument("--filled",  required=True,
                    help="Output of 02_gap_filling.py")
-    p.add_argument("--output", default="data/HBCD_2020_Final.xlsx",
-                   help="Path for HBCD-2020 Excel file")
+    p.add_argument("--output", default="data/ClimateData_Final_2000_2020.xlsx",
+                   help="Path for the final Excel file")
     a = p.parse_args()
     main(a.filled, a.output)

@@ -129,7 +129,7 @@ def main(input_path: str, output_path: str):
 
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description="Systematic gap analysis for HBCD-2020")
+    p = argparse.ArgumentParser(description="Systematic gap analysis for the 2000-2020 station records")
     p.add_argument("--input",  required=True, help="Path to IRIMO_Daily_ClimateData_2000_2020.xlsx")
     p.add_argument("--output", default="reports/gap_analysis_report.csv")
     a = p.parse_args()

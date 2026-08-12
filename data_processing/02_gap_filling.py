@@ -221,7 +221,7 @@ def main(irimo_path: str, mazdb_path: str, output_path: str):
 
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description="Multi-source gap-filling for HBCD-2020")
+    p = argparse.ArgumentParser(description="Multi-source gap-filling for the 2000-2020 station records")
     p.add_argument("--irimo",  required=True)
     p.add_argument("--mazdb",  required=True)
     p.add_argument("--output", default="data/ClimateData_GapFilled_2000_2020.xlsx")

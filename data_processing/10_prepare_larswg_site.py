@@ -54,8 +54,8 @@ STATIONS = {
 # Mean CO2 concentration for 2000-2020 baseline (ppm, Mauna Loa annual mean)
 CO2_BASELINE = 390.769   # same value used in the existing Amol.st
 
-# -- Load HBCD-2020 ------------------------------------------------------------
-print("Loading HBCD-2020 ...")
+# -- Load 2000-2020 ------------------------------------------------------------
+print("Loading 2000-2020 ...")
 df_all = pd.read_excel(DATA_EXCEL, sheet_name="All_Stations", parse_dates=["date"])
 print(f"  Rows: {len(df_all):,} | Period: {df_all['date'].min().date()} - {df_all['date'].max().date()}")
 
